@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "dark_theme_config.proto";
+
+option java_package = "com.duycomp.autoclicker";
+option java_multiple_files = true;
+
+message UserPreferences  {
+    DarkThemeConfigProto dark_theme_config = 1;
+    bool useDynamicColor = 2;
+    int64 intervalClick = 3;
+    int64 durationClick = 4;
+    int32 nLoop = 5;
+    bool isInfinityLoop = 6;
+    int64 earlyTime = 7;
+}

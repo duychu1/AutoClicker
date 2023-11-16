@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.protobuf)
 
 }
 
@@ -53,7 +54,39 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+//    sourceSets.register(this.name) {
+//        val buildDir = layout.buildDirectory.get().asFile
+//        java.srcDir(buildDir.resolve("generated/source/proto/${it.name}/java"))
+//        kotlin.srcDir(buildDir.resolve("generated/source/proto/${it.name}/kotlin"))
+//    }
 }
+
+protobuf {
+    protoc {
+        artifact = libs.protobuf.protoc.get().toString()
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                register("java") {
+                    option("lite")
+                }
+                register("kotlin") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
+//androidComponents.beforeVariants {
+//    android.sourceSets.register(it.name) {
+//        val buildDir = layout.buildDirectory.get().asFile
+//        java.srcDir(buildDir.resolve("generated/source/proto/${it.name}/java"))
+//        kotlin.srcDir(buildDir.resolve("generated/source/proto/${it.name}/kotlin"))
+//    }
+//}
 
 dependencies {
 
@@ -75,6 +108,10 @@ dependencies {
 
     implementation(libs.moshi.core)
     ksp(libs.moshi.kotlin.codegen)
+
+    //datastore
+    implementation(libs.dataStore.core)
+    implementation(libs.protobuf.kotlin.lite)
 
 
 
