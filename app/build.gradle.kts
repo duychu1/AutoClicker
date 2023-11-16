@@ -1,8 +1,9 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+
 }
 
 android {
@@ -18,6 +19,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 
@@ -35,21 +40,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = JavaVersion.VERSION_17.toString()
     }
     buildFeatures {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
-    }
-    kapt {
-        correctErrorTypes = true
     }
 }
 
@@ -65,10 +67,20 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     //hilt
-    implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-compiler:2.44")
+    implementation("com.google.dagger:hilt-android:2.48")
+    ksp("com.google.dagger:hilt-android-compiler:2.48")
 
-    //room package
+    //database package
+    val roomVersion = "2.6.0"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    annotationProcessor("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+
+    //moshi
+    implementation("com.squareup.moshi:moshi:1.14.0")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.14.0")
+
 
 
 
