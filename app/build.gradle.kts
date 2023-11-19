@@ -1,6 +1,10 @@
+import org.gradle.configurationcache.extensions.capitalized
+import java.util.Locale
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.protobuf)
@@ -47,7 +51,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.toString()
+        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get().toString()
     }
     packaging {
         resources {
@@ -80,11 +84,28 @@ protobuf {
     }
 }
 
-//androidComponents.beforeVariants {
-//    android.sourceSets.register(it.name) {
-//        val buildDir = layout.buildDirectory.get().asFile
-//        java.srcDir(buildDir.resolve("generated/source/proto/${it.name}/java"))
-//        kotlin.srcDir(buildDir.resolve("generated/source/proto/${it.name}/kotlin"))
+//androidComponents {
+//    onVariants(selector().all()) { variant ->
+//        afterEvaluate {
+//            // This is a workaround for https://issuetracker.google.com/301244513 which depends on internal
+//            // implementations of the android gradle plugin and the ksp gradle plugin which might change in the future
+//            // in an unpredictable way.
+////            project.tasks.getByName("ksp${variant.name.capitalize()}Kotlin").configure {
+////                val buildConfigTask = project.tasks.getByName("generate${variant.name.capitalize()}BuildConfig") as com.android.build.gradle.tasks.GenerateBuildConfig
+////
+////                (it as org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool).source = buildConfigTask.sourceOutputDir
+////            }
+//
+//            project.tasks.getByName("ksp" + variant.name.capitalized() + "Kotlin") {
+//                val buildConfigTask =
+//                    project.tasks.getByName("generate${variant.name.replaceFirstChar {
+//                        if (it.isLowerCase()) it.titlecase(
+//                            Locale.getDefault()
+//                        ) else it.toString()
+//                    }}BuildConfig") as com.android.build.gradle.tasks.GenerateBuildConfig
+//                (this as org.jetbrains.kotlin.gradle.tasks.AbstractKotlinCompileTool<*>).setSource(buildConfigTask.sourceOutputDir)
+//            }
+//        }
 //    }
 //}
 
@@ -94,17 +115,22 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
 
+    implementation(libs.hilt.navigation.compose)
+//    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidxComposeLibs)
 
     implementation(libs.hilt.android)
-    ksp(libs.hilt.android.compiler)
+    kapt(libs.hilt.android.compiler)
 
     //database
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
-    ksp(libs.room.compiler)
     implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
     implementation(libs.moshi.core)
     ksp(libs.moshi.kotlin.codegen)

@@ -1,4 +1,4 @@
-package com.duycomp.downloader.core.model
+package com.duycomp.autoclicker.model
 
 enum class DarkThemeConfig {
     FOLLOW_SYSTEM, LIGHT, DARK

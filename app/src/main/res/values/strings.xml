@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">AutoClicker</string>
+    <string name="common_setting">Cài đặt chung</string>
+    <string name="interval_click_title">Thời gian chờ trước khi click nút tiếp theo</string>
+    <string name="duration_click_title">Thời gian thực hiện một click</string>
+    <string name="tutorial">Hướng dẫn</string>
+    <string name="response">Phản hồi</string>
+    <string name="loop_title">Lặp lại</string>
+    <string name="n_loop_description">lần</string>
+    <string name="infinity_loop_description">Đến khi tạm dừng</string>
+    <string name="milisecond">Mili giây (ms)</string>
+    <string name="loading">Loading...</string>
 </resources>

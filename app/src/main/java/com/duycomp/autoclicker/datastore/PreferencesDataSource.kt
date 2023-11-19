@@ -1,17 +1,28 @@
 package com.duycomp.autoclicker.datastore
 
+import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.dataStoreFile
 import com.duycomp.autoclicker.DarkThemeConfigProto
 import com.duycomp.autoclicker.UserPreferences
+import com.duycomp.autoclicker.common.network.Dispatcher
+import com.duycomp.autoclicker.common.network.DownloaderDispatchers
+import com.duycomp.autoclicker.common.network.di.ApplicationScope
 import com.duycomp.autoclicker.copy
 import com.duycomp.autoclicker.model.UserData
-import com.duycomp.downloader.core.model.DarkThemeConfig
+import com.duycomp.autoclicker.model.DarkThemeConfig
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class DownloaderPreferencesDataSource @Inject constructor(
+class PreferencesDataSource @Inject constructor(
     private val userPreferences: DataStore<UserPreferences>,
 ) {
+
     val userData = userPreferences.data
         .map {
             UserData (

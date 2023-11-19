@@ -2,23 +2,24 @@ package com.duycomp.autoclicker.database
 
 import androidx.room.*
 import com.duycomp.autoclicker.database.model.TimerSchedule
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ClickerConfigDao {
     @Query("SELECT configName FROM configuration_clicker")
-    suspend fun getAllConfigName(): List<String>
+    fun getAllConfigName(): Flow<List<String>>
 
     @Query("SELECT * FROM configuration_clicker WHERE configName = :configName")
-    suspend fun getConfig(configName: String): ClickerConfig
+    fun getConfig(configName: String): Flow<ClickerConfig>
 
     @Insert
-    suspend fun insertConfig(clickerConfig: ClickerConfig)
+    suspend fun insert(clickerConfig: ClickerConfig)
 
     @Delete
-    suspend fun deleteConfig(clickerConfig: ClickerConfig)
+    suspend fun delete(clickerConfig: ClickerConfig)
 
     @Update
-    suspend fun updateConfig(clickerConfig: ClickerConfig)
+    suspend fun update(clickerConfig: ClickerConfig)
 
 
 }

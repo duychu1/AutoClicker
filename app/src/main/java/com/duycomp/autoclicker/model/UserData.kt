@@ -1,7 +1,5 @@
 package com.duycomp.autoclicker.model
 
-import com.duycomp.downloader.core.model.DarkThemeConfig
-
 data class UserData(
     val darkThemeConfig: DarkThemeConfig,
     val useDynamicColor: Boolean,
