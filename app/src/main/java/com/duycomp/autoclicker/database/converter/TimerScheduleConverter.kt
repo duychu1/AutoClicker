@@ -1,10 +1,8 @@
 package com.duycomp.autoclicker.database.converter
 
 import androidx.room.TypeConverter
-import com.duycomp.autoclicker.database.model.PointsClick
-import com.duycomp.autoclicker.database.model.TimerSchedule
+import com.duycomp.autoclicker.model.TimerSchedule
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapter
 
 class TimerScheduleConverter {
     private val moshi = Moshi.Builder().build()

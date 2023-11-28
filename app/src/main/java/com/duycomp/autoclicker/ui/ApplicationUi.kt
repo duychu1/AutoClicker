@@ -22,7 +22,7 @@ fun ApplicationUi() {
                 title = { Text("AutoClicker") }
             )
         }
-    ) { it ->
+    ) {
         Surface(
             modifier = Modifier
                 .fillMaxSize()

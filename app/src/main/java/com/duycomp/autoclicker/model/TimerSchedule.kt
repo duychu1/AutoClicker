@@ -1,4 +1,4 @@
-package com.duycomp.autoclicker.database.model
+package com.duycomp.autoclicker.model
 
 import com.squareup.moshi.JsonClass
 import java.util.Date
@@ -6,6 +6,8 @@ import java.util.Date
 @JsonClass(generateAdapter = true)
 data class TimerSchedule(
     var isTimer: Boolean = false,
-    var time: Date,
-    var earlyClick: Int = 300,
-)
+    var time: Date = Date(0),
+    var earlyClick: Long = 300L,
+) {
+
+}

@@ -2,19 +2,18 @@ package com.duycomp.autoclicker.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverter
-import com.duycomp.autoclicker.database.model.PointsClick
-import com.duycomp.autoclicker.database.model.TimerSchedule
+import com.duycomp.autoclicker.database.model.TargetClick
+import com.duycomp.autoclicker.model.TimerSchedule
 
 const val DB_NAME = "configuration_clicker"
 @Entity(tableName = DB_NAME)
-data class ClickerConfig(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+data class ClickerConfigEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val order: Int,
     val configName: String,
     val nLoop: Int,
     val isInfinityLoop: Boolean,
-    val pointsClick: PointsClick,
+    val targetsClick: List<TargetClick>,
     val timerSchedule: TimerSchedule
 )
 

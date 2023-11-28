@@ -1,7 +1,6 @@
 package com.duycomp.autoclicker.database
 
 import androidx.room.*
-import com.duycomp.autoclicker.database.model.TimerSchedule
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -10,16 +9,16 @@ interface ClickerConfigDao {
     fun getAllConfigName(): Flow<List<String>>
 
     @Query("SELECT * FROM configuration_clicker WHERE configName = :configName")
-    fun getConfig(configName: String): Flow<ClickerConfig>
+    fun getConfig(configName: String): Flow<ClickerConfigEntity>
 
     @Insert
-    suspend fun insert(clickerConfig: ClickerConfig)
+    suspend fun insert(clickerConfigEntity: ClickerConfigEntity)
 
     @Delete
-    suspend fun delete(clickerConfig: ClickerConfig)
+    suspend fun delete(clickerConfigEntity: ClickerConfigEntity)
 
     @Update
-    suspend fun update(clickerConfig: ClickerConfig)
+    suspend fun update(clickerConfigEntity: ClickerConfigEntity)
 
 
 }

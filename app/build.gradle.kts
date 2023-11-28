@@ -114,6 +114,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material.iconsExtended)
 
     implementation(libs.hilt.navigation.compose)
 //    implementation(libs.androidx.lifecycle.viewmodel.compose)

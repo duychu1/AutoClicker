@@ -1,8 +1,14 @@
 package com.duycomp.autoclicker.feature.home
 
-import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.res.Configuration.UI_MODE_NIGHT_NO
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -38,13 +45,10 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.duycomp.autoclicker.R
+import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
+import com.duycomp.autoclicker.feature.accessibility.checkAccessibilityPermission
 import com.duycomp.autoclicker.model.DarkThemeConfig
 import com.duycomp.autoclicker.model.UserData
-import com.duycomp.autoclicker.ui.theme.card
-import com.duycomp.autoclicker.ui.theme.dividerSpace
-import com.duycomp.autoclicker.ui.theme.inputLine
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -53,6 +57,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.userDataUiState.collectAsStateWithLifecycle()
+    val isOverlaying by viewModel.isOverlaying.collectAsStateWithLifecycle()
 
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -78,6 +83,8 @@ fun HomeScreen(
                     onIntervalClickChange = viewModel::onIntervalClickChange,
                     onInfinityLoopChange = viewModel::onInfinityLoopChange,
                     onLoopChange = viewModel::onLoopChange,
+                    onStartOverlayButtonClick = viewModel::onStartButtonClick,
+                    isOverlayController = isOverlaying
                 )
             }
         }
@@ -92,6 +99,8 @@ fun ColumnScope.HomeScreenContent(
     onDurationClickChange: (Long) -> Unit = { },
     onInfinityLoopChange: (Boolean) -> Unit = { },
     onLoopChange: (Int) -> Unit = { },
+    onStartOverlayButtonClick: (Context) -> Unit = { },
+    isOverlayController: Boolean = false,
 ) {
 //    BannerAds()
 
@@ -109,7 +118,7 @@ fun ColumnScope.HomeScreenContent(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(card)
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
             .padding(15.dp)
     )
     {
@@ -126,7 +135,7 @@ fun ColumnScope.HomeScreenContent(
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
-            color = dividerSpace,
+            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
             thickness = 1.dp
 
         )
@@ -144,7 +153,7 @@ fun ColumnScope.HomeScreenContent(
         Divider(
             modifier = Modifier
                 .fillMaxWidth(),
-            color = dividerSpace,
+            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
             thickness = 1.dp
         )
 
@@ -163,14 +172,21 @@ fun ColumnScope.HomeScreenContent(
 
     Spacer(modifier = Modifier.height(15.dp))
 
+    val context = LocalContext.current
+
     Button(
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
             .fillMaxWidth(0.4f),
-        onClick = { }
+        onClick = {
+            onStartOverlayButtonClick(context)
+        }
     ) {
-        Text(text = "Bắt đầu", fontSize = 16.sp)
+        if (isOverlayController) Text(text = "Kết thúc", fontSize = 16.sp)
+        else Text(text = "Bắt đầu", fontSize = 16.sp)
     }
+//    StartButton(context, onStartOverlay, launchSomeActivity)
+//    CloseButton(onCloseOverlay)
 
     Spacer(modifier = Modifier.height(15.dp))
 
@@ -192,6 +208,39 @@ fun ColumnScope.HomeScreenContent(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
     )
+}
+
+@Composable
+private fun ColumnScope.CloseButton(onCloseOverlay: () -> Unit) {
+    Button(
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .fillMaxWidth(0.4f),
+        onClick = {
+            onCloseOverlay()
+        },
+
+    ) {
+        Text(text = "Kết thúc")
+    }
+}
+
+@Composable
+private fun ColumnScope.StartButton(
+    context: Context,
+    onOverlay: (Context) -> Unit,
+    launchSomeActivity: ManagedActivityResultLauncher<Intent, ActivityResult>
+) {
+    Button(
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .fillMaxWidth(0.4f),
+        onClick = {
+            onOverlay(context)
+        }
+    ) {
+        Text(text = "Bắt đầu", fontSize = 16.sp)
+    }
 }
 
 @Composable
@@ -232,7 +281,7 @@ private fun LoopSetting(
             Divider(
                 modifier = Modifier
                     .width(60.dp),
-                color = inputLine,
+                color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
                 thickness = 1.dp
             )
 
@@ -270,13 +319,15 @@ private fun ColumnScope.InputItem(
 ) {
     Text(
         text = title,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
     )
 
     Spacer(modifier = Modifier.height(8.dp))
 
-    Row {
-        Column(Modifier.fillMaxWidth(0.6f)) {
+    Row(
+        modifier = Modifier.padding(horizontal = 24.dp)
+    ) {
+        Column(Modifier.fillMaxWidth(0.4f)) {
             TextFieldCustom(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toString(),
@@ -285,9 +336,9 @@ private fun ColumnScope.InputItem(
 
             Divider(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 25.dp),
-                color = inputLine,
+                    .fillMaxWidth(),
+//                    .padding(start = 25.dp),
+                color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
                 thickness = 1.dp
             )
         }
@@ -306,7 +357,7 @@ private fun ButtonCustom(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
-            .background(card)
+            .background(MaterialTheme.colorScheme.inverseOnSurface)
             .clickable(onClick = onClick)
     ) {
         Text(
@@ -332,7 +383,8 @@ private fun TextFieldCustom(
         modifier = modifier,
         textStyle = TextStyle(
             fontSize = 17.sp,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onBackground
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
@@ -343,10 +395,31 @@ private fun TextFieldCustom(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true)
+@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
 fun HomePreview() {
-    Surface(Modifier.fillMaxSize()) {
+    Surface(modifier = Modifier
+        .fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            CenterAlignedTopAppBar(
+                title = { Text("AutoClicker") }
+            )
+
+            HomeScreenContent(userData = fakeUserData)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun HomePreviewDark() {
+    Surface(modifier = Modifier
+        .fillMaxSize(),
+        color = MaterialTheme.colorScheme.surface
+    ) {
         Column(Modifier.fillMaxSize()) {
             CenterAlignedTopAppBar(
                 title = { Text("AutoClicker") }

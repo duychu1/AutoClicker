@@ -2,7 +2,6 @@ package com.duycomp.autoclicker.database.di
 
 import android.content.Context
 import androidx.room.Room
-import com.duycomp.autoclicker.database.ClickerConfig
 import com.duycomp.autoclicker.database.ClickerConfigDB
 import com.duycomp.autoclicker.database.ClickerConfigDao
 import com.duycomp.autoclicker.database.DB_NAME
