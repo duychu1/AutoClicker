@@ -1,9 +1,8 @@
 package com.duycomp.autoclicker.feature.overlay.target
 
 import android.content.Context
-import android.widget.Toast
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,8 +17,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.duycomp.autoclicker.feature.overlay.MyLifecycleOwner
-import com.duycomp.autoclicker.feature.overlay.MyViewModelStoreOwner
+import com.duycomp.autoclicker.feature.utils.MyLifecycleOwner
+import com.duycomp.autoclicker.feature.utils.MyViewModelStoreOwner
 import com.duycomp.autoclicker.ui.theme.AcIcons
 import com.duycomp.autoclicker.ui.theme.Point
 
@@ -32,15 +31,19 @@ fun TargetCompose(
     val context = LocalContext.current
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.clickable {
-            Toast.makeText(context, "onPointClick", Toast.LENGTH_SHORT).show()
-        }
+        modifier = Modifier.fillMaxSize()
     ) {
-        Icon(imageVector = AcIcons.pointClick, tint = Point, contentDescription = null)
+        Icon(
+            imageVector = AcIcons.pointClick,
+            tint = Point,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
         Text(text = "$num", fontSize = 30.sp, color = Color.DarkGray)
 
     }
 }
+
 
 
 fun composeToView (
@@ -57,7 +60,6 @@ fun composeToView (
     lifecycleOwner.performRestore(null)
     lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
     lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    lifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     composeView.setViewTreeLifecycleOwner(lifecycleOwner)
     composeView.setViewTreeViewModelStoreOwner(viewModelStoreOwner)
     composeView.setViewTreeSavedStateRegistryOwner(lifecycleOwner)

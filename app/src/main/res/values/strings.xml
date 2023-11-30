@@ -12,5 +12,6 @@
     <string name="loading">Loading...</string>
 
     <string name="accessibilityDescription">Ứng dụng này cần được cấp quyền để thực hiện click</string>
+    <string name="target_setting_title">Cài đặt mục tiêu</string>
 
 </resources>

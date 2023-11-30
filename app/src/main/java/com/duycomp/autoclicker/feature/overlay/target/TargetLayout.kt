@@ -1,12 +1,11 @@
 package com.duycomp.autoclicker.feature.overlay.target
 
 import android.graphics.PixelFormat
-import android.graphics.Point
 import android.view.Gravity
 import android.view.WindowManager
-import com.duycomp.autoclicker.feature.overlay.Position
+import com.duycomp.autoclicker.model.Position
 
-const val pointPx = 150
+const val pointPx = 120
 const val WIDTH_SCREEN = 1080
 const val HEIGHT_SCREEN = 2160
 

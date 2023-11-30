@@ -1,14 +1,20 @@
-package com.duycomp.autoclicker.feature.overlay
+package com.duycomp.autoclicker.feature.utils
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.duycomp.autoclicker.feature.overlay.target.HEIGHT_SCREEN
 import com.duycomp.autoclicker.feature.overlay.target.WIDTH_SCREEN
+import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
 import com.duycomp.autoclicker.feature.overlay.target.pointPx
+import com.duycomp.autoclicker.feature.overlay.target.targetSettingDialogView
+import com.duycomp.autoclicker.model.Position
 import com.duycomp.autoclicker.model.TargetData
+import com.duycomp.autoclicker.model.ViewLayout
+import com.duycomp.autoclicker.model.position
 import kotlin.math.abs
 
 
@@ -87,6 +93,7 @@ class Movement {
         widthScreen: Int = WIDTH_SCREEN,
         heightScreen: Int = HEIGHT_SCREEN,
         rectPointSize: Int = pointPx,
+        context: Context,
     ){
         val maxDurationClick = 200L
         var startPos: Position? = null
@@ -132,11 +139,17 @@ class Movement {
                     initial = null
                     val durationClick = getCurrentMillis() - startTouchTime!!
                     if ((durationClick < maxDurationClick)
-                        && (abs(layoutParams.x - startPos!!.x) < 30)
-                        && (abs(layoutParams.y - startPos!!.y) < 30)
+                        && (abs(layoutParams.x - startPos!!.x) < 50)
+                        && (abs(layoutParams.y - startPos!!.y) < 50)
 
                     ) {
-//                        addTargetDialog(appcontext!!,windowManager, clickPos)
+
+//                        managerView.addTargetSettingDialogToWindowManager(context, targetData, windowManager)
+                        ViewLayout(
+                            targetSettingDialogView(context,targetData, windowManager),
+                            dialogLayout()
+                        ).addViewToWindowManager(windowManager)
+
                     }
                 }
             }

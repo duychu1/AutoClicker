@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
-import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
@@ -33,6 +32,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -45,8 +45,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.duycomp.autoclicker.R
-import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
-import com.duycomp.autoclicker.feature.accessibility.checkAccessibilityPermission
 import com.duycomp.autoclicker.model.DarkThemeConfig
 import com.duycomp.autoclicker.model.UserData
 import java.util.*
@@ -247,7 +245,7 @@ private fun ColumnScope.StartButton(
 private fun LoopSetting(
     userData: UserData,
     onInfinityLoopChange: (Boolean) -> Unit,
-    onLoopChange: (Int) -> Unit
+    onValueChange: (Int) -> Unit
 ) {
     Text(
         text = stringResource(R.string.loop_title),
@@ -275,7 +273,13 @@ private fun LoopSetting(
             TextFieldCustom(
                 modifier = Modifier.width(60.dp),
                 value = userData.nLoop.toString(),
-                onValueChange = { onLoopChange(it.toInt()) },
+                onValueChange = {
+                    try {
+                        onValueChange(it.toInt())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                },
             )
 
             Divider(
@@ -312,7 +316,7 @@ private fun LoopSetting(
 }
 
 @Composable
-private fun ColumnScope.InputItem(
+public fun ColumnScope.InputItem(
     title: String,
     value: Long,
     onValueChange: (Long) -> Unit,
@@ -331,7 +335,13 @@ private fun ColumnScope.InputItem(
             TextFieldCustom(
                 modifier = Modifier.fillMaxWidth(),
                 value = value.toString(),
-                onValueChange = { onValueChange(it.toLong()) },
+                onValueChange = {
+                    try {
+                        onValueChange(it.toLong())
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                },
             )
 
             Divider(
@@ -377,9 +387,19 @@ private fun TextFieldCustom(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
+    var valueState by remember {
+        mutableStateOf(value)
+    }
+    val focusManager = LocalFocusManager.current
+//    val focusRequester = remember { FocusRequester() }
+
+
     BasicTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = valueState,
+        onValueChange = {
+            valueState = it
+            onValueChange(it)
+        },
         modifier = modifier,
         textStyle = TextStyle(
             fontSize = 17.sp,
@@ -390,8 +410,17 @@ private fun TextFieldCustom(
             keyboardType = KeyboardType.Number,
             imeAction = ImeAction.Done
         ),
-        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
+        keyboardActions = KeyboardActions(
+            onDone = {
+                keyboardController?.hide()
+                focusManager.clearFocus()
+            }
+        )
     )
+
+//    LaunchedEffect(Unit) {
+//        focusRequester.requestFocus()
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

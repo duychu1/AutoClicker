@@ -17,6 +17,7 @@ data class ConfigClick(
             id, order, configName, nLoop, isInfinityLoop, targetsData.map { it.asEntity() }, timerSchedule
         )
     }
+
 }
 
 fun ClickerConfigEntity.asModel(context: Context): ConfigClick {

@@ -1,4 +1,4 @@
-package com.duycomp.autoclicker.feature.overlay
+package com.duycomp.autoclicker.feature.utils
 
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle

@@ -4,22 +4,23 @@ import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.PixelFormat
-import android.os.IBinder
 import android.util.Log
-import android.view.Gravity
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
+import com.duycomp.autoclicker.data.UserDataRepositoryImpl
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AcAccessibility : AccessibilityService() {
+class AcAccessibility: AccessibilityService() {
+
+    @Inject lateinit var userDataRepository: UserDataRepositoryImpl
     companion object {
         var windowManager : WindowManager? = null
         @SuppressLint("StaticFieldLeak")
-        var context: Context? = null
+        var self: AcAccessibility? = null
+        var acUserDataRepository: UserDataRepositoryImpl? = null
     }
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -39,8 +40,10 @@ class AcAccessibility : AccessibilityService() {
     override fun onServiceConnected() {
         Log.d(TAG, "onServiceConnected: ")
         super.onServiceConnected()
+        Toast.makeText(this.applicationContext, "Đã kết nối", Toast.LENGTH_SHORT).show()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        context = this
+        self = this
+        acUserDataRepository = this.userDataRepository
 
 //        windowManager.removeView()
     }
@@ -53,6 +56,8 @@ class AcAccessibility : AccessibilityService() {
 
     override fun onInterrupt() {
         Log.d(TAG, "onInterrupt: ")
+        Toast.makeText(this.applicationContext, "Lỗi", Toast.LENGTH_SHORT).show()
+
     }
 }
 

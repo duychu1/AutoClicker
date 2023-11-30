@@ -23,10 +23,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ControllerViewModel @Inject constructor(
-    private val userDataRepository: UserDataRepositoryImpl
+//    private val userDataRepository: UserDataRepositoryImpl
 ): ViewModel() {
-    private val windowManager: WindowManager? = AcAccessibility.windowManager
+    private val windowManager: WindowManager = AcAccessibility.windowManager!!
     private val managerTargets: ManagerTargets = ManagerTargets()
+    private val userDataRepository = AcAccessibility.acUserDataRepository!!
 
     var configClick: ConfigClick = ConfigClick()
     var defaultTargetClick: TargetClick = TargetClick(
@@ -61,11 +62,11 @@ class ControllerViewModel @Inject constructor(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onAddClick(context: Context) {
-        managerTargets.addTarget(context, windowManager!!, defaultTargetClick, configClick.targetsData)
+        managerTargets.addTarget(context, windowManager, defaultTargetClick, configClick.targetsData)
     }
 
     fun onRemoveClick() {
-        managerTargets.removeTarget(windowManager!!, configClick.targetsData)
+        managerTargets.removeTarget(windowManager, configClick.targetsData)
     }
 
     fun onSettingClick() {
@@ -80,7 +81,10 @@ class ControllerViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-
+    override fun onCleared() {
+        managerTargets.removeAllTargets(windowManager, configClick.targetsData)
+        super.onCleared()
+    }
 
 
 }

@@ -9,10 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.data.UserDataRepositoryImpl
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
-import com.duycomp.autoclicker.feature.accessibility.checkAccessibilityPermission
-import com.duycomp.autoclicker.feature.overlay.Movement
-import com.duycomp.autoclicker.model.ViewLayout
 import com.duycomp.autoclicker.feature.overlay.managerView
+import com.duycomp.autoclicker.feature.utils.Movement
 import com.duycomp.autoclicker.model.UserData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +23,6 @@ import javax.inject.Inject
 @SuppressLint("StaticFieldLeak")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val controllerViewLayout: ViewLayout,
     private val userDataRepository: UserDataRepositoryImpl,
     private val savedStateHandle: SavedStateHandle,
 ): ViewModel() {
@@ -70,10 +67,7 @@ class HomeViewModel @Inject constructor(
     private fun onStartOverlay(context: Context) {
 
         if (
-            checkAccessibilityPermission(
-                context = context,
-                accessibilityClass = AcAccessibility::class.java
-            )
+            AcAccessibility.self != null
         ) {
             AcAccessibility.windowManager?.also { windowManager ->
                 savedStateHandle.set(key = IS_OVERLAYING, value = true)
@@ -102,9 +96,7 @@ class HomeViewModel @Inject constructor(
     private fun onCloseOverlay() {
         savedStateHandle.set(key = IS_OVERLAYING, value = false)
 
-        AcAccessibility.windowManager?.also { windowManager ->
-            windowManager.removeView(managerView.controller!!.view)
-        }
+        managerView.removeAllOverlayView(AcAccessibility.windowManager!!)
     }
 
 

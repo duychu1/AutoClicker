@@ -1,15 +1,8 @@
 package com.duycomp.autoclicker.data
 
-import android.content.Context
-import com.duycomp.autoclicker.common.network.Dispatcher
-import com.duycomp.autoclicker.common.network.DownloaderDispatchers
-import com.duycomp.autoclicker.common.network.di.ApplicationScope
 import com.duycomp.autoclicker.datastore.PreferencesDataSource
 import com.duycomp.autoclicker.model.DarkThemeConfig
 import com.duycomp.autoclicker.model.UserData
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -32,7 +25,7 @@ class UserDataRepositoryImpl @Inject constructor(
     }
 
     suspend fun setIntervalClick(value: Long) {
-        preferencesDataSource.setDurationClick(value)
+        preferencesDataSource.setIntervalClick(value)
     }
 
     suspend fun setEarlyTime(value: Long) {

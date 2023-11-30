@@ -1,4 +1,4 @@
-package com.duycomp.autoclicker.feature.overlay
+package com.duycomp.autoclicker.model
 
 import android.graphics.Point
 import android.view.MotionEvent

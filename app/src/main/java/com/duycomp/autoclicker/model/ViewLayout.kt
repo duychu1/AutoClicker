@@ -1,10 +1,8 @@
 package com.duycomp.autoclicker.model
 
+import android.content.Context
 import android.view.View
 import android.view.WindowManager
-import androidx.compose.ui.ExperimentalComposeUiApi
-import com.duycomp.autoclicker.feature.overlay.Movement
-import com.duycomp.autoclicker.feature.overlay.Position
 
 data class ViewLayout(
     var view: View,
@@ -19,4 +17,7 @@ data class ViewLayout(
 //        windowManager.addView(view,layout)
 //        Movement().addTarget(windowManager)
 //    }
+    fun prev(context: Context) {
+
+    }
 }

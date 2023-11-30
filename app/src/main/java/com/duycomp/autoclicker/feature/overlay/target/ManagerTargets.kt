@@ -5,29 +5,30 @@ import android.view.View
 import android.view.WindowManager
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.duycomp.autoclicker.database.model.TargetClick
-import com.duycomp.autoclicker.feature.overlay.Movement
+import com.duycomp.autoclicker.feature.overlay.acRemoveView
 import com.duycomp.autoclicker.model.TargetData
 import com.duycomp.autoclicker.model.asModel
-import com.duycomp.autoclicker.model.createViewLayout
 
 class ManagerTargets() {
 
         @ExperimentalComposeUiApi
         fun showAllTargets(context: Context, windowManager: WindowManager, targetsData: MutableList<TargetData>) {
             targetsData.forEach{
-                it.addViewAndMovement(windowManager)
+                it.addViewAndMovement(windowManager, context)
             }
         }
 
         @ExperimentalComposeUiApi
         fun addTarget(context: Context, windowManager: WindowManager, newTarget: TargetClick, targetsData: MutableList<TargetData>) {
             targetsData.add(element = newTarget.asModel(context = context, number = targetsData.size + 1))
-            targetsData.last().addViewAndMovement(windowManager)
+            targetsData.last().addViewAndMovement(windowManager, context)
 
         }
 
         fun removeTarget(windowManager: WindowManager, targetsData: MutableList<TargetData>) {
-            windowManager.removeView(targetsData.last().viewLayout.view)
+            if (targetsData.isEmpty()) return
+
+            windowManager.acRemoveView(targetsData.last().viewLayout.view)
             targetsData.removeLast()
         }
 
