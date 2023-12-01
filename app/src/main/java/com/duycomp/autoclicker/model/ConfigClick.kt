@@ -4,12 +4,12 @@ import android.content.Context
 import com.duycomp.autoclicker.database.ClickerConfigEntity
 
 data class ConfigClick(
-    val id: Int = 0,
-    val order: Int = 0,
-    val configName: String = "cau hinh 1",
-    val nLoop: Int = 1,
-    val isInfinityLoop: Boolean = false,
-    val timerSchedule: TimerSchedule = TimerSchedule(),
+    var id: Int = -1,
+    var order: Int = 0,
+    var configName: String = "cau hinh 1",
+    var nLoop: Int = 1,
+    var isInfinityLoop: Boolean = false,
+    var timerSchedule: TimerSchedule = TimerSchedule(),
     val targetsData: MutableList<TargetData> = mutableListOf(),
 ) {
     fun asEntities(): ClickerConfigEntity {
@@ -18,6 +18,21 @@ data class ConfigClick(
         )
     }
 
+    fun updateConfigName(value:String) {
+        this.configName = value
+    }
+
+    fun updateLoop(value: Int) {
+        this.nLoop = value
+    }
+
+    fun updateInfinityLoop(value: Boolean) {
+        this.isInfinityLoop = value
+    }
+
+    fun updateTimerSchedule(timerSchedule: TimerSchedule) {
+        this.timerSchedule = timerSchedule
+    }
 }
 
 fun ClickerConfigEntity.asModel(context: Context): ConfigClick {

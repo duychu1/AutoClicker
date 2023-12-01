@@ -130,13 +130,7 @@ fun ColumnScope.HomeScreenContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
-            thickness = 1.dp
-
-        )
+        DividerAlpha10()
 
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -148,16 +142,11 @@ fun ColumnScope.HomeScreenContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth(),
-            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
-            thickness = 1.dp
-        )
+        DividerAlpha10()
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        LoopSetting(userData, onInfinityLoopChange, onLoopChange)
+        LoopSetting(userData.isInfinityLoop, userData.nLoop, onInfinityLoopChange, onLoopChange)
     }
 
     val launchSomeActivity =
@@ -209,6 +198,16 @@ fun ColumnScope.HomeScreenContent(
 }
 
 @Composable
+fun DividerAlpha10() {
+    Divider(
+        modifier = Modifier
+            .fillMaxWidth(),
+        color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.1f),
+        thickness = 1.dp
+    )
+}
+
+@Composable
 private fun ColumnScope.CloseButton(onCloseOverlay: () -> Unit) {
     Button(
         modifier = Modifier
@@ -218,7 +217,7 @@ private fun ColumnScope.CloseButton(onCloseOverlay: () -> Unit) {
             onCloseOverlay()
         },
 
-    ) {
+        ) {
         Text(text = "Kết thúc")
     }
 }
@@ -242,10 +241,11 @@ private fun ColumnScope.StartButton(
 }
 
 @Composable
-private fun LoopSetting(
-    userData: UserData,
+fun LoopSetting(
+    isInfinityLoop: Boolean,
+    nLoop: Int,
     onInfinityLoopChange: (Boolean) -> Unit,
-    onValueChange: (Int) -> Unit
+    onLoopChange: (Int) -> Unit
 ) {
     Text(
         text = stringResource(R.string.loop_title),
@@ -255,61 +255,45 @@ private fun LoopSetting(
 
     // nLoop
     Row(
-        Modifier.padding(start = 10.dp),
+        Modifier.padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = !userData.isInfinityLoop,
+            checked = !isInfinityLoop,
             onCheckedChange = { onInfinityLoopChange(false) },
 
             )
-        Column(
-            Modifier.padding(
-                start = 10.dp,
-                bottom = 3.dp,
-                end = 10.dp
-            )
-        ) {
-            TextFieldCustom(
-                modifier = Modifier.width(60.dp),
-                value = userData.nLoop.toString(),
-                onValueChange = {
-                    try {
-                        onValueChange(it.toInt())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                },
-            )
 
-            Divider(
-                modifier = Modifier
-                    .width(60.dp),
-                color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
-                thickness = 1.dp
-            )
-
-        }
-
-        Text(text = stringResource(R.string.n_loop_description), Modifier.padding(bottom = 3.dp))
+        BasicTextFieldUnderlineUnit(
+            modifier = Modifier
+                .width(100.dp)
+                .padding(
+                    start = 10.dp,
+                    bottom = 3.dp,
+                    end = 10.dp
+                ),
+            value = nLoop,
+            valueUnit = stringResource(R.string.n_loop_description),
+            onValueChange = { onLoopChange(it) },
+        )
     }
 
-    Spacer(modifier = Modifier.height(1.dp))
+//    Spacer(modifier = Modifier.height(1.dp))
 
     //infinityLoop
     Row(
-        verticalAlignment = Alignment.Bottom,
-        modifier = Modifier.padding(start = 10.dp)
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(horizontal = 10.dp)
     ) {
         Checkbox(
-            checked = userData.isInfinityLoop,
+            checked = isInfinityLoop,
             onCheckedChange = { onInfinityLoopChange(true) }
         )
 
         Text(
             text = stringResource(R.string.infinity_loop_description),
             modifier = Modifier
-                .padding(start = 10.dp)
+                .padding(horizontal = 10.dp)
                 .align(Alignment.CenterVertically)
         )
     }
@@ -328,32 +312,125 @@ public fun ColumnScope.InputItem(
 
     Spacer(modifier = Modifier.height(8.dp))
 
+    BasicTextFieldUnderlineUnit(
+        modifier = Modifier.padding(start = 24.dp).fillMaxWidth(0.7f),
+        value = value,
+        valueUnit = stringResource(R.string.milisecond),
+    ) { onValueChange(it) }
+
+}
+
+@Composable
+fun BasicTextFieldUnderlineUnit(
+    modifier: Modifier,
+    value: Long,
+    valueUnit: String,
+    onValueChange: (Long) -> Unit = {},
+) {
+    var valueState by remember { mutableStateOf(value.toString()) }
+
     Row(
-        modifier = Modifier.padding(horizontal = 24.dp)
+        modifier = modifier
     ) {
-        Column(Modifier.fillMaxWidth(0.4f)) {
-            TextFieldCustom(
-                modifier = Modifier.fillMaxWidth(),
-                value = value.toString(),
-                onValueChange = {
-                    try {
-                        onValueChange(it.toLong())
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-                },
-            )
 
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth(),
-//                    .padding(start = 25.dp),
-                color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
-                thickness = 1.dp
-            )
-        }
+        BasicTextFieldUnderline(
+            modifier = Modifier.weight(1f),
+            value = valueState,
+            onValueChange = {
+                valueState = it
+                try {
+                    onValueChange(it.toLong())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            },
+        )
 
-        Text(text = stringResource(R.string.milisecond), Modifier.padding(start = 5.dp))
+        Text(
+            text = valueUnit,
+            Modifier
+                .align(Alignment.Bottom)
+                .padding(horizontal = 5.dp)
+        )
+    }
+}
+
+@Composable
+fun BasicTextFieldUnderlineUnit(
+    modifier: Modifier,
+    value: Int,
+    valueUnit: String,
+    onValueChange: (Int) -> Unit = {},
+) {
+    var valueState by remember { mutableStateOf(value.toString()) }
+
+    Row(
+        modifier = modifier
+    ) {
+
+        BasicTextFieldUnderline(
+            modifier = Modifier.weight(1f),
+            value = valueState,
+            onValueChange = {
+                valueState = it
+                try {
+                    onValueChange(it.toInt())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            },
+        )
+
+        Text(
+            text = valueUnit,
+            Modifier
+                .align(Alignment.Bottom)
+                .padding(horizontal = 5.dp)
+        )
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun BasicTextFieldUnderline(
+    modifier: Modifier = Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+//    var valueState by remember {
+//        mutableStateOf(value)
+//    }
+    val focusManager = LocalFocusManager.current
+
+    Column(modifier = modifier) {
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(
+                fontSize = 17.sp,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onBackground
+            ),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                }
+            )
+        )
+
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.4f),
+            thickness = 1.dp
+        )
     }
 
 }
@@ -378,57 +455,13 @@ private fun ButtonCustom(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-private fun TextFieldCustom(
-    modifier: Modifier = Modifier,
-    value: String,
-    onValueChange: (String) -> Unit,
-) {
-    val keyboardController = LocalSoftwareKeyboardController.current
-
-    var valueState by remember {
-        mutableStateOf(value)
-    }
-    val focusManager = LocalFocusManager.current
-//    val focusRequester = remember { FocusRequester() }
-
-
-    BasicTextField(
-        value = valueState,
-        onValueChange = {
-            valueState = it
-            onValueChange(it)
-        },
-        modifier = modifier,
-        textStyle = TextStyle(
-            fontSize = 17.sp,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onBackground
-        ),
-        keyboardOptions = KeyboardOptions(
-            keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions(
-            onDone = {
-                keyboardController?.hide()
-                focusManager.clearFocus()
-            }
-        )
-    )
-
-//    LaunchedEffect(Unit) {
-//        focusRequester.requestFocus()
-//    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
 @Composable
 fun HomePreview() {
-    Surface(modifier = Modifier
-        .fillMaxSize(),
+    Surface(
+        modifier = Modifier
+            .fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -445,8 +478,9 @@ fun HomePreview() {
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun HomePreviewDark() {
-    Surface(modifier = Modifier
-        .fillMaxSize(),
+    Surface(
+        modifier = Modifier
+            .fillMaxSize(),
         color = MaterialTheme.colorScheme.surface
     ) {
         Column(Modifier.fillMaxSize()) {

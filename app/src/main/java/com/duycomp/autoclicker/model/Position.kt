@@ -3,7 +3,9 @@ package com.duycomp.autoclicker.model
 import android.graphics.Point
 import android.view.MotionEvent
 import android.view.WindowManager
+import com.squareup.moshi.JsonClass
 
+@JsonClass(generateAdapter = true)
 data class Position(var fx: Float, var fy: Float) {
 
     val x: Int

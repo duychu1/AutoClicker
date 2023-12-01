@@ -9,10 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,7 +24,6 @@ import com.duycomp.autoclicker.ui.theme.AcIcons
 fun ControllerCompose(
     viewModel: ControllerViewModel = hiltViewModel(),
 ) {
-
 
     ControllerContent(
         isPlay = viewModel.isPlaying,
@@ -47,7 +42,7 @@ private fun ControllerContent(
     onPlayClick: (Boolean) -> Unit = { },
     onAddClick: (Context) -> Unit = { },
     onRemoveClick: () -> Unit = { },
-    onSettingClick: () -> Unit = { },
+    onSettingClick: (Context) -> Unit = { },
     onClockClick: () -> Unit = { },
     onFolderClick: () -> Unit = { },
 ) {
@@ -67,7 +62,7 @@ private fun ControllerContent(
 
         IconButtonItem(imageVector = AcIcons.add, onClick = { onAddClick(context) })
         IconButtonItem(imageVector = AcIcons.remove, onClick = onRemoveClick)
-        IconButtonItem(imageVector = AcIcons.setting, onClick = onSettingClick)
+        IconButtonItem(imageVector = AcIcons.setting, onClick = { onSettingClick(context) })
         IconButtonItem(imageVector = AcIcons.time, onClick = onClockClick)
         IconButtonItem(imageVector = AcIcons.folder, onClick = onFolderClick)
         IconButtonItemNonClick(imageVector = AcIcons.move)

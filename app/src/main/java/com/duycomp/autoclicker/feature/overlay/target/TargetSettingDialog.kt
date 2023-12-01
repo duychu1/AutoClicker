@@ -165,7 +165,7 @@ fun PreTargetSetting() {
 
 fun dialogLayout(): WindowManager.LayoutParams =
     WindowManager.LayoutParams().apply {
-        width = (WIDTH_SCREEN* 0.8).roundToInt()
+        width = (WIDTH_SCREEN* 0.9).roundToInt()
         height = WindowManager.LayoutParams.WRAP_CONTENT
         type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
         format = PixelFormat.TRANSLUCENT

@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
+import com.duycomp.autoclicker.data.ClickerConfigDatabaseRepositoryImpl
 import com.duycomp.autoclicker.data.UserDataRepositoryImpl
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -16,11 +17,13 @@ import javax.inject.Inject
 class AcAccessibility: AccessibilityService() {
 
     @Inject lateinit var userDataRepository: UserDataRepositoryImpl
+    @Inject lateinit var configDatabaseRepository: ClickerConfigDatabaseRepositoryImpl
     companion object {
         var windowManager : WindowManager? = null
         @SuppressLint("StaticFieldLeak")
         var self: AcAccessibility? = null
         var acUserDataRepository: UserDataRepositoryImpl? = null
+        var acConfigDatabaseRepository: ClickerConfigDatabaseRepositoryImpl? = null
     }
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -44,6 +47,7 @@ class AcAccessibility: AccessibilityService() {
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         self = this
         acUserDataRepository = this.userDataRepository
+        acConfigDatabaseRepository = this.configDatabaseRepository
 
 //        windowManager.removeView()
     }

@@ -129,7 +129,7 @@ class Movement {
                         layoutParams.y = -(rectPointSize/2 - 9)
                     }
                     windowManager.updateViewLayout(view, layoutParams)
-                    targetData.updatePosition(layoutParams.position.toPoint())
+                    targetData.updatePosition(layoutParams.position)
 
 //                    layoutParams.flags += WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
 //                    windowManager.updateViewLayout(view, layoutParams)

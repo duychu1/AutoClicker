@@ -1,7 +1,7 @@
 package com.duycomp.autoclicker.data
 
-import com.duycomp.autoclicker.database.ClickerConfigEntity
 import com.duycomp.autoclicker.database.ClickerConfigDao
+import com.duycomp.autoclicker.database.ClickerConfigEntity
 import com.duycomp.autoclicker.model.ConfigClick
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -16,6 +16,7 @@ class ClickerConfigDatabaseRepositoryImpl @Inject constructor(
         clickerConfigDao.getConfig(configName)
 
      suspend fun insert(configClick: ConfigClick) {
+         if (configClick.id == -1) configClick.id = 0
         clickerConfigDao.insert(configClick.asEntities())
     }
 
@@ -24,6 +25,7 @@ class ClickerConfigDatabaseRepositoryImpl @Inject constructor(
     }
 
     suspend fun update(configClick: ConfigClick) {
+        if (configClick.id == -1) return
         clickerConfigDao.update(configClick.asEntities())
     }
 

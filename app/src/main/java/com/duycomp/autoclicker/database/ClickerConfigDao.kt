@@ -11,7 +11,7 @@ interface ClickerConfigDao {
     @Query("SELECT * FROM configuration_clicker WHERE configName = :configName")
     fun getConfig(configName: String): Flow<ClickerConfigEntity>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(clickerConfigEntity: ClickerConfigEntity)
 
     @Delete

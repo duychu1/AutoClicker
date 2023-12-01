@@ -1,7 +1,6 @@
 package com.duycomp.autoclicker.model
 
 import android.content.Context
-import android.graphics.Point
 import android.view.WindowManager
 import androidx.compose.ui.ExperimentalComposeUiApi
 import com.duycomp.autoclicker.database.model.TargetClick
@@ -14,12 +13,12 @@ import com.duycomp.autoclicker.feature.overlay.target.targetView
 import com.duycomp.autoclicker.feature.utils.Movement
 
 data class TargetData(
-    var position: Point = startTargetsPosition,
+    var position: Position = startTargetsPosition,
     var intervalClick:Long = 100L,
     var durationClick:Long = 10L,
     var viewLayout: ViewLayout,
 ) {
-    fun updatePosition(position: Point) {
+    fun updatePosition(position: Position) {
         this.position = position
     }
 
@@ -41,8 +40,8 @@ data class TargetData(
 
 }
 
-fun createViewLayout(context: Context, number: Int, position: Point = startTargetsPosition): ViewLayout =
-    ViewLayout(targetView(context, number), targetLayout(position.asPosition()))
+fun createViewLayout(context: Context, number: Int, position: Position = startTargetsPosition): ViewLayout =
+    ViewLayout(targetView(context, number), targetLayout(position))
 
 fun TargetClick.asModel(context: Context, number: Int): TargetData =
     TargetData(
@@ -52,7 +51,7 @@ fun TargetClick.asModel(context: Context, number: Int): TargetData =
         viewLayout = createViewLayout(context, number, position)
     )
 
-val startTargetsPosition = Point(
-    (WIDTH_SCREEN /2 - pointPx /2),
-    (HEIGHT_SCREEN /2 - pointPx /2)
+val startTargetsPosition = Position(
+    ((WIDTH_SCREEN /2 - pointPx /2).toFloat()),
+    ((HEIGHT_SCREEN /2 - pointPx /2).toFloat())
 )
