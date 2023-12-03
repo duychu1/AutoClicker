@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
+import com.duycomp.autoclicker.feature.overlay.configs.configSavedDialogView
 import com.duycomp.autoclicker.feature.overlay.setting.settingDialogView
 import com.duycomp.autoclicker.feature.overlay.target.ManagerTargets
 import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
@@ -33,7 +34,7 @@ class ControllerViewModel @Inject constructor(
     private val userDataRepository = AcAccessibility.acUserDataRepository!!
     private val configDatabaseRepository = AcAccessibility.acConfigDatabaseRepository!!
 
-    private val _config = MutableStateFlow(ConfigClick())
+    private val _configClick = MutableStateFlow(ConfigClick())
     private val _targetClick = MutableStateFlow(
         TargetClick(
             position = startTargetsPosition,
@@ -42,7 +43,7 @@ class ControllerViewModel @Inject constructor(
         )
     )
 
-    val config = _config.asStateFlow()
+    val config = _configClick.asStateFlow()
 
 //    val con = userDataRepository.userData.map {
 //        _config.value = _config.value.copy(
@@ -67,7 +68,7 @@ class ControllerViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             userDataRepository.userData.collectLatest {
-                _config.value = _config.value.copy(
+                _configClick.value = _configClick.value.copy(
                     nLoop = it.nLoop,
                     isInfinityLoop = it.isInfinityLoop,
                     timerSchedule = TimerSchedule(earlyClick = it.earlyTime),
@@ -90,22 +91,22 @@ class ControllerViewModel @Inject constructor(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onAddClick(context: Context) {
-        managerTargets.addTarget(context, windowManager, _targetClick.value, _config.value.targetsData)
+        managerTargets.addTarget(context, windowManager, _targetClick.value, _configClick.value.targetsData)
     }
 
     fun onRemoveClick() {
-        managerTargets.removeTarget(windowManager, _config.value.targetsData)
+        managerTargets.removeTarget(windowManager, _configClick.value.targetsData)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onSettingClick(context: Context) {
         ViewLayout(
             settingDialogView(
-                context,
-                windowManager,
-                _config,
-                userDataRepository,
-                configDatabaseRepository,
+                context = context,
+                windowManager = windowManager,
+                _configClick = _configClick,
+                userDataRepository = userDataRepository,
+                configDatabaseRepository = configDatabaseRepository,
             ),
             dialogLayout()
         ).addViewToWindowManager(windowManager)
@@ -115,12 +116,22 @@ class ControllerViewModel @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    fun onFolderClick() {
-        TODO("Not yet implemented")
+    fun onFolderClick(context: Context) {
+        ViewLayout(
+            configSavedDialogView(
+                context = context,
+                windowManager = windowManager,
+                configClick = _configClick,
+                managerTargets = managerTargets,
+                userDataRepository = userDataRepository,
+                configDatabaseRepository = configDatabaseRepository,
+            ),
+            dialogLayout()
+        ).addViewToWindowManager(windowManager)
     }
 
     override fun onCleared() {
-        managerTargets.removeAllTargets(windowManager, _config.value.targetsData)
+        managerTargets.removeAllTargets(windowManager, _configClick.value.targetsData)
         super.onCleared()
     }
 

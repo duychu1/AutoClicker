@@ -39,29 +39,49 @@ import com.duycomp.autoclicker.model.ConfigClick
 import com.duycomp.autoclicker.model.HmsMs
 import com.duycomp.autoclicker.model.TimerSchedule
 import com.duycomp.autoclicker.model.longToHms
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 @ExperimentalComposeUiApi
 fun settingDialogView(
     context: Context,
     windowManager: WindowManager,
-    configClick: MutableStateFlow<ConfigClick>,
+    _configClick: MutableStateFlow<ConfigClick>,
     userDataRepository: UserDataRepositoryImpl,
     configDatabaseRepository: ClickerConfigDatabaseRepositoryImpl,
-) :ComposeView {
-    val composeView = ComposeView(context) 
-    composeView.setContent { 
+    scopeIO: CoroutineScope = CoroutineScope(Dispatchers.IO),
+): ComposeView {
+    val composeView = ComposeView(context)
+    composeView.setContent {
         SettingDialog(
-            viewModel = SettingDialogViewModel(
-                _configClick = configClick,
-                userDataRepository = userDataRepository,
-                configDatabaseRepository = configDatabaseRepository,
-                windowManager = windowManager,
-                composeView = composeView
-            )
+            _configClick = _configClick,
+            onDismiss = {
+                try {
+                    windowManager.removeView(composeView)
+                } catch (e: Exception) {
+                    TODO("Not yet implemented")
+                }
+            },
+            onInsertConfigClick = {
+                scopeIO.launch {
+                    configDatabaseRepository.insert(it)
+                }
+            } ,
+            onUpdateConfigClick = {
+                scopeIO.launch {
+                    configDatabaseRepository.update(it)
+                }
+            },
+            onUpdateEarlyClick = {
+                scopeIO.launch {
+                    userDataRepository.setEarlyTime(it)
+                }
+            }
         )
     }
-    
+
     composeView.actingLikeLifecycle()
 
     return composeView
@@ -70,20 +90,40 @@ fun settingDialogView(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SettingDialog(
-    viewModel: SettingDialogViewModel
+    _configClick: MutableStateFlow<ConfigClick>,
+    onDismiss: () -> Unit = {},
+//    viewModel: SettingDialogViewModel,
+    onInsertConfigClick: (ConfigClick) -> Unit = {  },
+    onUpdateConfigClick: (ConfigClick) -> Unit = {  },
+    onUpdateEarlyClick: (Long) -> Unit = {  },
 ) {
-    val configClick by viewModel.configClick.collectAsStateWithLifecycle()
+    val configClick by _configClick.collectAsStateWithLifecycle()
+
+    fun onConfigClickChange(configClick: ConfigClick) {
+        _configClick.value = configClick
+        onUpdateConfigClick(configClick)
+    }
 
     SettingDialogContent(
         configName = configClick.configName,
         timerSchedule = configClick.timerSchedule,
         nLoop = configClick.nLoop,
         isInfinityLoop = configClick.isInfinityLoop,
-        onConfigNameChange = viewModel::onConfigNameChange,
-        onTimerScheduleChange = viewModel::onTimerScheduleChange,
-        onLoopChange = viewModel::onLoopChange,
-        onInfinityLoopChange = viewModel::onInfinityLoopChange,
-        onDismiss = viewModel::onDismiss,
+        onConfigNameChange = {
+           onConfigClickChange(configClick.copy(configName = it))
+        },
+        onTimerScheduleChange = {
+            onConfigClickChange(configClick.copy(timerSchedule = it))
+        },
+        onLoopChange = {
+            onConfigClickChange(configClick.copy(nLoop = it))
+        },
+        onInfinityLoopChange = {
+            onConfigClickChange(configClick.copy(isInfinityLoop = it))
+        },
+        onSaveConfig = { onInsertConfigClick(configClick) },
+        onEarlyClickChange = { onUpdateEarlyClick(it) },
+        onDismiss = onDismiss,
     )
 }
 
@@ -93,19 +133,20 @@ fun SettingDialogContent(
     configName: String,
     onConfigNameChange: (String) -> Unit = {},
     timerSchedule: TimerSchedule,
-    onTimerScheduleChange: (TimerSchedule) -> Unit ={},
+    onTimerScheduleChange: (TimerSchedule) -> Unit = {},
     nLoop: Int,
     onLoopChange: (Int) -> Unit = {},
     isInfinityLoop: Boolean,
     onInfinityLoopChange: (Boolean) -> Unit = {},
     onDismiss: () -> Unit = {},
+    onSaveConfig: () -> Unit = { },
+    onEarlyClickChange: (Long) -> Unit = {},
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Column(
         Modifier
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.background)
-            .fillMaxHeight(0.6f)
             .padding(18.dp)
             .verticalScroll(rememberScrollState())
     ) {
@@ -119,7 +160,7 @@ fun SettingDialogContent(
 
         ConfigNameEditable(title = "Tên", value = configName, onValueChange = onConfigNameChange)
 
-        TimeScheduleEditable(timerSchedule, onTimerScheduleChange)
+        TimeScheduleEditable(timerSchedule, onTimerScheduleChange, onEarlyClickChange)
 
         Spacer(modifier = Modifier.height(10.dp))
         LoopSetting(isInfinityLoop, nLoop, onInfinityLoopChange, onLoopChange)
@@ -135,9 +176,10 @@ fun SettingDialogContent(
 
             Spacer(modifier = Modifier.width(12.dp))
             Button(onClick = {
+                onSaveConfig()
                 onDismiss()
             }) {
-                Text(text = "Đồng ý")
+                Text(text = "Lưu cấu hình")
             }
 
         }
@@ -148,6 +190,7 @@ fun SettingDialogContent(
 private fun TimeScheduleEditable(
     timerSchedule: TimerSchedule,
     onTimerScheduleChange: (TimerSchedule) -> Unit = {},
+    onEarlyClickChange: (Long) -> Unit,
 ) {
     Row {
         Text(
@@ -163,12 +206,12 @@ private fun TimeScheduleEditable(
     }
 
 //    var timeHmsMs = longToHms(timerSchedule.timeMs)
-    
+
     TimeEditable(
         modifier = Modifier.padding(start = 24.dp),
         timeHmsMs = longToHms(timerSchedule.timeMs)
     ) { onTimerScheduleChange(timerSchedule.copy(timeMs = it.toLongMs())) }
-    
+
     Spacer(modifier = Modifier.height(10.dp))
 
     if (!timerSchedule.isTimer) {
@@ -184,6 +227,7 @@ private fun TimeScheduleEditable(
     EarlyClickEditable(
         value = timerSchedule.earlyClick
     ) {
+        onEarlyClickChange(it)
         onTimerScheduleChange(timerSchedule.copy(earlyClick = it))
     }
 
@@ -315,7 +359,8 @@ fun PreSettingDialogContent() {
     Surface(
         Modifier
             .fillMaxWidth()
-            .fillMaxHeight()) {
+            .fillMaxHeight()
+    ) {
 
         val configClick = ConfigClick()
         SettingDialogContent(
