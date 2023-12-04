@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.data.UserDataRepositoryImpl
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
 import com.duycomp.autoclicker.feature.overlay.managerView
-import com.duycomp.autoclicker.feature.utils.Movement
+import com.duycomp.autoclicker.feature.overlay.utils.Movement
 import com.duycomp.autoclicker.model.UserData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted

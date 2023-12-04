@@ -44,7 +44,7 @@ private fun ControllerContent(
     onRemoveClick: () -> Unit = { },
     onSettingClick: (Context) -> Unit = { },
     onClockClick: () -> Unit = { },
-    onFolderClick: () -> Unit = { },
+    onFolderClick: (Context) -> Unit = { },
 ) {
     Column(
         modifier = Modifier
@@ -64,7 +64,7 @@ private fun ControllerContent(
         IconButtonItem(imageVector = AcIcons.remove, onClick = onRemoveClick)
         IconButtonItem(imageVector = AcIcons.setting, onClick = { onSettingClick(context) })
         IconButtonItem(imageVector = AcIcons.time, onClick = onClockClick)
-        IconButtonItem(imageVector = AcIcons.folder, onClick = onFolderClick)
+        IconButtonItem(imageVector = AcIcons.folder, onClick = { onFolderClick(context) })
         IconButtonItemNonClick(imageVector = AcIcons.move)
 //        IconButtonItem(imageVector = AcIcons.close, )
 

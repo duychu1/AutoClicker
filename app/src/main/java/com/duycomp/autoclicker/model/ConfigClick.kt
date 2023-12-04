@@ -1,7 +1,9 @@
 package com.duycomp.autoclicker.model
 
 import android.content.Context
+import android.view.WindowManager
 import com.duycomp.autoclicker.database.ClickerConfigEntity
+import com.duycomp.autoclicker.database.model.TargetClick
 
 data class ConfigClick(
     var id: Int = -1,
@@ -10,7 +12,7 @@ data class ConfigClick(
     var nLoop: Int = 1,
     var isInfinityLoop: Boolean = false,
     var timerSchedule: TimerSchedule = TimerSchedule(),
-    val targetsData: MutableList<TargetData> = mutableListOf(),
+    var targetsData: MutableList<TargetData> = mutableListOf(),
 ) {
     fun asEntities(): ClickerConfigEntity {
         return ClickerConfigEntity(
@@ -33,9 +35,19 @@ data class ConfigClick(
     fun updateTimerSchedule(timerSchedule: TimerSchedule) {
         this.timerSchedule = timerSchedule
     }
+
+    fun defaultValue(): ConfigClick = ConfigClick(
+        id = -1,
+        order = 0,
+        configName = "cau hinh 1",
+        nLoop = 1,
+        isInfinityLoop = false,
+        timerSchedule = TimerSchedule(),
+
+    )
 }
 
-fun ClickerConfigEntity.asModel(context: Context): ConfigClick {
+fun ClickerConfigEntity.asModel(context: Context, windowManager: WindowManager): ConfigClick {
     return ConfigClick(
         id = id,
         order = order,
@@ -43,9 +55,11 @@ fun ClickerConfigEntity.asModel(context: Context): ConfigClick {
         nLoop = nLoop,
         isInfinityLoop = isInfinityLoop,
         timerSchedule = timerSchedule,
-        targetsData = targetsClick.mapIndexed { index, targetClick ->
-            targetClick.asModel(context, index)
-        }.toMutableList()
+        targetsData = targetsClick.asModel(context,windowManager)
     )
 }
+
+fun List<TargetClick>.asModel(context: Context, windowManager: WindowManager): MutableList<TargetData> = this.mapIndexed { index, targetClick ->
+    targetClick.asModel(context = context, number = index+1, windowManager)
+}.toMutableList()
 

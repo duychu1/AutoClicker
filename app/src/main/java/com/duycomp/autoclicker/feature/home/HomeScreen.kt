@@ -395,13 +395,11 @@ fun BasicTextFieldUnderlineUnit(
 fun BasicTextFieldUnderline(
     modifier: Modifier = Modifier,
     value: String,
+    keyboardType: KeyboardType = KeyboardType.Number,
     onValueChange: (String) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-//    var valueState by remember {
-//        mutableStateOf(value)
-//    }
     val focusManager = LocalFocusManager.current
 
     Column(modifier = modifier) {
@@ -415,7 +413,7 @@ fun BasicTextFieldUnderline(
                 color = MaterialTheme.colorScheme.onBackground
             ),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
+                keyboardType = keyboardType,
                 imeAction = ImeAction.Done
             ),
             keyboardActions = KeyboardActions(

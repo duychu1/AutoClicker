@@ -3,8 +3,8 @@ package com.duycomp.autoclicker.ui.theme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Adjust
-import androidx.compose.material.icons.filled.AvTimer
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderShared
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.PauseCircle
@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ZoomOutMap
 
 object AcIcons {
+    val delete = Icons.Default.Delete
     val playCircle = Icons.Default.PlayCircle
     val pauseCircle = Icons.Default.PauseCircle
     val add = Icons.Default.Add

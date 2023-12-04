@@ -10,7 +10,7 @@ import com.duycomp.autoclicker.feature.overlay.target.WIDTH_SCREEN
 import com.duycomp.autoclicker.feature.overlay.target.pointPx
 import com.duycomp.autoclicker.feature.overlay.target.targetLayout
 import com.duycomp.autoclicker.feature.overlay.target.targetView
-import com.duycomp.autoclicker.feature.utils.Movement
+import com.duycomp.autoclicker.feature.overlay.utils.Movement
 
 data class TargetData(
     var position: Position = startTargetsPosition,
@@ -43,13 +43,16 @@ data class TargetData(
 fun createViewLayout(context: Context, number: Int, position: Position = startTargetsPosition): ViewLayout =
     ViewLayout(targetView(context, number), targetLayout(position))
 
-fun TargetClick.asModel(context: Context, number: Int): TargetData =
-    TargetData(
+fun TargetClick.asModel(context: Context, number: Int, windowManager: WindowManager): TargetData {
+    val target = TargetData(
         position = position,
         intervalClick = intervalClick,
         durationClick = durationClick,
         viewLayout = createViewLayout(context, number, position)
     )
+    target.addViewAndMovement(windowManager = windowManager, context = context)
+    return target
+}
 
 val startTargetsPosition = Position(
     ((WIDTH_SCREEN /2 - pointPx /2).toFloat()),

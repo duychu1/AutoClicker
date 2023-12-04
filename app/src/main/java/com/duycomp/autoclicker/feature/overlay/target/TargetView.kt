@@ -17,8 +17,8 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import com.duycomp.autoclicker.feature.utils.MyLifecycleOwner
-import com.duycomp.autoclicker.feature.utils.MyViewModelStoreOwner
+import com.duycomp.autoclicker.feature.overlay.utils.MyLifecycleOwner
+import com.duycomp.autoclicker.feature.overlay.utils.MyViewModelStoreOwner
 import com.duycomp.autoclicker.ui.theme.AcIcons
 import com.duycomp.autoclicker.ui.theme.Point
 

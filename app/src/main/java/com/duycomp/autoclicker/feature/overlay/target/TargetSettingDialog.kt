@@ -38,8 +38,8 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.duycomp.autoclicker.R
 import com.duycomp.autoclicker.feature.home.InputItem
-import com.duycomp.autoclicker.feature.utils.MyLifecycleOwner
-import com.duycomp.autoclicker.feature.utils.MyViewModelStoreOwner
+import com.duycomp.autoclicker.feature.overlay.utils.MyLifecycleOwner
+import com.duycomp.autoclicker.feature.overlay.utils.MyViewModelStoreOwner
 import com.duycomp.autoclicker.model.TargetData
 import com.duycomp.autoclicker.model.ViewLayout
 import kotlin.math.roundToInt

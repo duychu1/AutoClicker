@@ -1,6 +1,7 @@
 package com.duycomp.autoclicker.feature.overlay.target
 
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -20,8 +21,8 @@ class ManagerTargets() {
 
         @ExperimentalComposeUiApi
         fun addTarget(context: Context, windowManager: WindowManager, newTarget: TargetClick, targetsData: MutableList<TargetData>) {
-            targetsData.add(element = newTarget.asModel(context = context, number = targetsData.size + 1))
-            targetsData.last().addViewAndMovement(windowManager, context)
+            targetsData.add(element = newTarget.asModel(context = context, number = targetsData.size + 1, windowManager))
+//            targetsData.last().addViewAndMovement(windowManager, context)
 
         }
 
@@ -34,6 +35,7 @@ class ManagerTargets() {
 
         fun removeAllTargets(windowManager: WindowManager, targetsData: MutableList<TargetData>) {
             targetsData.forEach {
+                Log.d("TAG", "removeAllTargets: ${it.viewLayout.view}")
                 windowManager.removeView(it.viewLayout.view)
             }
             targetsData.clear()

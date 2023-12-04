@@ -9,7 +9,7 @@ const val DB_NAME = "configuration_clicker"
 @Entity(tableName = DB_NAME)
 data class ClickerConfigEntity(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val order: Int,
+    val order: Int= id,
     val configName: String,
     val nLoop: Int,
     val isInfinityLoop: Boolean,

@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
-import com.duycomp.autoclicker.feature.overlay.configs.configSavedDialogView
+import com.duycomp.autoclicker.feature.overlay.`folder-config`.configSavedDialogView
 import com.duycomp.autoclicker.feature.overlay.setting.settingDialogView
 import com.duycomp.autoclicker.feature.overlay.target.ManagerTargets
 import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
@@ -20,7 +20,6 @@ import com.duycomp.autoclicker.model.ViewLayout
 import com.duycomp.autoclicker.model.startTargetsPosition
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,7 +33,7 @@ class ControllerViewModel @Inject constructor(
     private val userDataRepository = AcAccessibility.acUserDataRepository!!
     private val configDatabaseRepository = AcAccessibility.acConfigDatabaseRepository!!
 
-    private val _configClick = MutableStateFlow(ConfigClick())
+//    private val _configClick = MutableStateFlow(ConfigClick())
     private val _targetClick = MutableStateFlow(
         TargetClick(
             position = startTargetsPosition,
@@ -43,7 +42,7 @@ class ControllerViewModel @Inject constructor(
         )
     )
 
-    val config = _configClick.asStateFlow()
+//    val config = _configClick.asStateFlow()
 
 //    val con = userDataRepository.userData.map {
 //        _config.value = _config.value.copy(
@@ -57,7 +56,11 @@ class ControllerViewModel @Inject constructor(
 //        initialValue = _config.value
 //    )
 
-    var configClick: ConfigClick = ConfigClick()
+    private var configClick: ConfigClick = ConfigClick()
+
+    val onConfigChange: (ConfigClick) -> Unit =  {
+        configClick = it
+    }
 
     var defaultTargetClick: TargetClick = TargetClick(
         position = startTargetsPosition,
@@ -65,10 +68,11 @@ class ControllerViewModel @Inject constructor(
         durationClick = 10L
     )
 
+
     init {
         viewModelScope.launch {
             userDataRepository.userData.collectLatest {
-                _configClick.value = _configClick.value.copy(
+                configClick = configClick.copy(
                     nLoop = it.nLoop,
                     isInfinityLoop = it.isInfinityLoop,
                     timerSchedule = TimerSchedule(earlyClick = it.earlyTime),
@@ -91,11 +95,11 @@ class ControllerViewModel @Inject constructor(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onAddClick(context: Context) {
-        managerTargets.addTarget(context, windowManager, _targetClick.value, _configClick.value.targetsData)
+        managerTargets.addTarget(context, windowManager, _targetClick.value, configClick.targetsData)
     }
 
     fun onRemoveClick() {
-        managerTargets.removeTarget(windowManager, _configClick.value.targetsData)
+        managerTargets.removeTarget(windowManager, configClick.targetsData)
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
@@ -104,7 +108,7 @@ class ControllerViewModel @Inject constructor(
             settingDialogView(
                 context = context,
                 windowManager = windowManager,
-                _configClick = _configClick,
+                configClick = configClick,
                 userDataRepository = userDataRepository,
                 configDatabaseRepository = configDatabaseRepository,
             ),
@@ -121,7 +125,8 @@ class ControllerViewModel @Inject constructor(
             configSavedDialogView(
                 context = context,
                 windowManager = windowManager,
-                configClick = _configClick,
+                configClick = configClick,
+                onConfigChange = onConfigChange,
                 managerTargets = managerTargets,
                 userDataRepository = userDataRepository,
                 configDatabaseRepository = configDatabaseRepository,
@@ -131,7 +136,7 @@ class ControllerViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        managerTargets.removeAllTargets(windowManager, _configClick.value.targetsData)
+        managerTargets.removeAllTargets(windowManager, configClick.targetsData)
         super.onCleared()
     }
 
