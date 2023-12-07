@@ -1,11 +1,13 @@
 package com.duycomp.autoclicker
 
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -22,10 +24,12 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         enableEdgeToEdge()
+
         setContent {
             val darkTheme = isSystemInDarkTheme()
 
@@ -58,7 +62,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
+
+const val TAG = "MainActivity"
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {

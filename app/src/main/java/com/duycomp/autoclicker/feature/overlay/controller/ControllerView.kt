@@ -17,11 +17,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.duycomp.autoclicker.feature.overlay.target.composeToView
+import com.duycomp.autoclicker.feature.overlay.target.actingLikeLifecycle
 import com.duycomp.autoclicker.ui.theme.AcIcons
 
+fun controllerView(context: Context) : ComposeView {
+    val composeView = ComposeView(context)
+    composeView.setContent {
+        ControllerCompose(composeView)
+    }
+
+    composeView.actingLikeLifecycle()
+
+    return composeView
+}
 @Composable
 fun ControllerCompose(
+    composeView: ComposeView,
     viewModel: ControllerViewModel = hiltViewModel(),
 ) {
 
@@ -33,6 +44,7 @@ fun ControllerCompose(
         onSettingClick = viewModel::onSettingClick ,
         onClockClick = viewModel::onClockClick ,
         onFolderClick = viewModel::onFolderClick ,
+        onCloseClick = { viewModel.onCloseClick(it, composeView) }
     )
 }
 
@@ -43,8 +55,9 @@ private fun ControllerContent(
     onAddClick: (Context) -> Unit = { },
     onRemoveClick: () -> Unit = { },
     onSettingClick: (Context) -> Unit = { },
-    onClockClick: () -> Unit = { },
+    onClockClick: (Context) -> Unit = { },
     onFolderClick: (Context) -> Unit = { },
+    onCloseClick: (Context) -> Unit = {  }
 ) {
     Column(
         modifier = Modifier
@@ -63,10 +76,10 @@ private fun ControllerContent(
         IconButtonItem(imageVector = AcIcons.add, onClick = { onAddClick(context) })
         IconButtonItem(imageVector = AcIcons.remove, onClick = onRemoveClick)
         IconButtonItem(imageVector = AcIcons.setting, onClick = { onSettingClick(context) })
-        IconButtonItem(imageVector = AcIcons.time, onClick = onClockClick)
+        IconButtonItem(imageVector = AcIcons.time, onClick = { onClockClick(context) })
         IconButtonItem(imageVector = AcIcons.folder, onClick = { onFolderClick(context) })
         IconButtonItemNonClick(imageVector = AcIcons.move)
-//        IconButtonItem(imageVector = AcIcons.close, )
+        IconButtonItem(imageVector = AcIcons.close, onClick = { onCloseClick(context) })
 
     }
 }
@@ -102,8 +115,6 @@ private fun IconButtonItemNonClick(imageVector: ImageVector) {
     )
 }
 
-fun controllerView(context: Context) : ComposeView =
-    composeToView(context = context, content = { ControllerCompose() })
 
 @Preview
 @Composable

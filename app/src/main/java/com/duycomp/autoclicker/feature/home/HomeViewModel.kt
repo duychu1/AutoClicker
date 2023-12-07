@@ -66,9 +66,7 @@ class HomeViewModel @Inject constructor(
 
     private fun onStartOverlay(context: Context) {
 
-        if (
-            AcAccessibility.self != null
-        ) {
+        if (AcAccessibility.self != null) {
             AcAccessibility.windowManager?.also { windowManager ->
                 savedStateHandle.set(key = IS_OVERLAYING, value = true)
                 managerView.createControllerView(context)
@@ -96,7 +94,7 @@ class HomeViewModel @Inject constructor(
     private fun onCloseOverlay() {
         savedStateHandle.set(key = IS_OVERLAYING, value = false)
 
-        managerView.removeAllOverlayView(AcAccessibility.windowManager!!)
+//        managerView.removeAllOverlayView(AcAccessibility.windowManager!!)
     }
 
 

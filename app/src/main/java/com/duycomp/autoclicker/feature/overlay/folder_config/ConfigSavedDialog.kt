@@ -1,4 +1,4 @@
-package com.duycomp.autoclicker.feature.overlay.`folder-config`
+package com.duycomp.autoclicker.feature.overlay.folder_config
 
 import android.content.Context
 import android.view.WindowManager
@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -96,6 +97,7 @@ fun ConfigSavedDialog(
     ) {
         Text(
             text = "Chọn cấu hình đã lưu",
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterHorizontally),
             style = MaterialTheme.typography.titleLarge
         )

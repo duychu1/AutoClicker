@@ -6,11 +6,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.platform.ComposeView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
-import com.duycomp.autoclicker.feature.overlay.`folder-config`.configSavedDialogView
+import com.duycomp.autoclicker.feature.overlay.folder_config.configSavedDialogView
+import com.duycomp.autoclicker.feature.overlay.managerView
 import com.duycomp.autoclicker.feature.overlay.setting.settingDialogView
 import com.duycomp.autoclicker.feature.overlay.target.ManagerTargets
 import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
@@ -116,8 +118,15 @@ class ControllerViewModel @Inject constructor(
         ).addViewToWindowManager(windowManager)
     }
 
-    fun onClockClick() {
-        TODO("Not yet implemented")
+    private var isShowClock = false
+    fun onClockClick(context: Context) {
+        isShowClock = !isShowClock
+        if (isShowClock) {
+            managerView.addClockView(context, windowManager)
+        } else {
+            managerView.removeClockView(windowManager)
+        }
+
     }
 
     fun onFolderClick(context: Context) {
@@ -135,10 +144,16 @@ class ControllerViewModel @Inject constructor(
         ).addViewToWindowManager(windowManager)
     }
 
+    fun onCloseClick(context: Context, composeView: ComposeView) {
+        managerTargets.removeAllTargets(windowManager, configClick.targetsData)
+        managerView.removeClockView(windowManager)
+        windowManager.removeView(composeView)
+    }
     override fun onCleared() {
         managerTargets.removeAllTargets(windowManager, configClick.targetsData)
+        managerView.removeClockView(windowManager)
         super.onCleared()
     }
-
-
 }
+
+private const val TAG = "ControllerViewModel"

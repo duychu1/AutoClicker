@@ -3,6 +3,7 @@ package com.duycomp.autoclicker.model
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
+import com.duycomp.autoclicker.feature.overlay.utils.Movement
 
 data class ViewLayout(
     var view: View,
@@ -10,6 +11,10 @@ data class ViewLayout(
 ) {
     fun addViewToWindowManager(windowManager: WindowManager) {
         windowManager.addView(view,layout)
+    }
+    fun addViewAndMovement(windowManager: WindowManager) {
+        windowManager.addView(view,layout)
+        Movement().add(view,layout,windowManager)
     }
 
 //    @ExperimentalComposeUiApi

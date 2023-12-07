@@ -3,6 +3,8 @@ package com.duycomp.autoclicker.feature.overlay
 import android.content.Context
 import android.view.View
 import android.view.WindowManager
+import com.duycomp.autoclicker.feature.overlay.clock.clockLayout
+import com.duycomp.autoclicker.feature.overlay.clock.clockView
 import com.duycomp.autoclicker.feature.overlay.controller.controllerLayout
 import com.duycomp.autoclicker.feature.overlay.controller.controllerView
 import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
@@ -12,7 +14,7 @@ import com.duycomp.autoclicker.model.ViewLayout
 
 open class ManagerView() {
     var controller: ViewLayout? = null
-    var time: ViewLayout? = null
+    var clock: ViewLayout? = null
     var setting: ViewLayout? = null
     var folder: ViewLayout? = null
     var targetSettingDialog: ViewLayout? = null
@@ -58,8 +60,23 @@ open class ManagerView() {
     }
 
     fun removeAllOverlayView(windowManager: WindowManager) {
+        removeClockView(windowManager)
+//        removeAllTargetsView(windowManager)
         removeControllerView(windowManager)
-        removeAllTargetsView(windowManager)
+    }
+
+    fun addClockView(context: Context, windowManager: WindowManager) {
+        clock = ViewLayout(
+            view = clockView(context),
+            layout = clockLayout()
+        )
+        clock!!.addViewAndMovement(windowManager)
+    }
+    fun removeClockView(windowManager: WindowManager) {
+        this.clock?.also {
+            windowManager.removeView(it.view)
+        }
+        this.controller = null
     }
 
 }
@@ -68,10 +85,10 @@ val managerView = object : ManagerView() {  }
 
 fun WindowManager.acAddView(view: View, layout: WindowManager.LayoutParams) {
     this.addView(view, layout)
-    managerView.targetsView.add(view)
+//    managerView.targetsView.add(view)
 }
 
 fun WindowManager.acRemoveView(view: View) {
     this.removeView(view)
-    managerView.targetsView.remove(view)
+//    managerView.targetsView.remove(view)
 }

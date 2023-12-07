@@ -1,4 +1,4 @@
-package com.duycomp.autoclicker.feature.overlay.`folder-config`
+package com.duycomp.autoclicker.feature.overlay.folder_config
 
 import android.content.Context
 import android.util.Log
