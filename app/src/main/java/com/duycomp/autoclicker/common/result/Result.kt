@@ -1,4 +1,4 @@
-package com.duycomp.downloader.core.common.result
+package com.duycomp.autoclicker.common.result
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
