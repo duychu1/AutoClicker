@@ -1,9 +1,11 @@
 package com.duycomp.autoclicker.feature.accessibility
 
 import android.accessibilityservice.AccessibilityService
+import android.accessibilityservice.GestureDescription
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Path
 import android.util.Log
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
@@ -24,6 +26,8 @@ class AcAccessibility: AccessibilityService() {
         var self: AcAccessibility? = null
         var acUserDataRepository: UserDataRepositoryImpl? = null
         var acConfigDatabaseRepository: ClickerConfigDatabaseRepositoryImpl? = null
+        var acAction: Action? = null
+//        val handlerThread: HandlerThread = HandlerThread("Click Thread")
     }
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
 
@@ -31,7 +35,6 @@ class AcAccessibility: AccessibilityService() {
 
     override fun onCreate() {
         super.onCreate()
-//        handlerThread.start()
         Log.d(TAG, "onCreate: ")
     }
 
@@ -48,13 +51,14 @@ class AcAccessibility: AccessibilityService() {
         self = this
         acUserDataRepository = this.userDataRepository
         acConfigDatabaseRepository = this.configDatabaseRepository
+        acAction = Action(this)
 
-//        windowManager.removeView()
+//        clickPos1(400F, 505F,)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-//        handlerThread.quitSafely()
+        self = null
         stopSelf()
     }
 
@@ -63,6 +67,20 @@ class AcAccessibility: AccessibilityService() {
         Toast.makeText(this.applicationContext, "Lỗi", Toast.LENGTH_SHORT).show()
 
     }
+
+     fun clickPos1(x: Float, y: Float, duration: Long = 10) {
+        val clickPath = Path()
+        clickPath.moveTo(x, y)
+        val clickStroke: GestureDescription.StrokeDescription =
+            GestureDescription.StrokeDescription(clickPath, 10L, duration)
+        val clickBuilder: GestureDescription.Builder = GestureDescription.Builder()
+        clickBuilder.addStroke(clickStroke)
+
+        val click: Boolean = dispatchGesture(clickBuilder.build(), null, null)
+
+        Log.d(TAG, "clickPos: $click ($x:$y)")
+    }
+
 }
 
 const val TAG = "AcAccessibility"

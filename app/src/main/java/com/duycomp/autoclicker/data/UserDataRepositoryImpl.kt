@@ -39,4 +39,22 @@ class UserDataRepositoryImpl @Inject constructor(
     suspend fun setLoop(value: Int) {
         preferencesDataSource.setLoop(value)
     }
+
+    suspend fun setManualZoneOffset(value: Boolean) {
+        preferencesDataSource.setManualZoneOffset(value)
+    }
+
+    suspend fun setManualClockOffset(value: Boolean) {
+        preferencesDataSource.setManualClockOffset(value)
+
+    }
+
+    suspend fun setClockOffset(value: Long) {
+        preferencesDataSource.setClockOffset(value)
+
+    }
+
+    suspend fun setZoneOffset(value: Long) {
+        preferencesDataSource.setZoneOffset(value)
+    }
 }

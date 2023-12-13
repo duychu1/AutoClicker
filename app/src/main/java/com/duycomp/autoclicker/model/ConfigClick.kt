@@ -8,7 +8,7 @@ import com.duycomp.autoclicker.database.model.TargetClick
 data class ConfigClick(
     var id: Int = -1,
     var order: Int = 0,
-    var configName: String = "cau hinh 1",
+    var configName: String = "Cấu hình 1",
     var nLoop: Int = 1,
     var isInfinityLoop: Boolean = false,
     var timerSchedule: TimerSchedule = TimerSchedule(),

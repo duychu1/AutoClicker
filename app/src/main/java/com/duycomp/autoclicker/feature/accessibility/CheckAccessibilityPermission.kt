@@ -22,13 +22,11 @@ fun checkAccessibilityPermission(context: Context, accessibilityClass: Class<*>)
             context.applicationContext.contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         )
-        if (settingValue != null) {
-            mStringColonSplitter.setString(settingValue)
-            while (mStringColonSplitter.hasNext()) {
-                val accessibilityService = mStringColonSplitter.next()
-                if (accessibilityService.equals(service, ignoreCase = true)) {
-                    return true
-                }
+        mStringColonSplitter.setString(settingValue)
+        while (mStringColonSplitter.hasNext()) {
+            val accessibilityService = mStringColonSplitter.next()
+            if (accessibilityService.equals(service, ignoreCase = true)) {
+                return true
             }
         }
     } else {

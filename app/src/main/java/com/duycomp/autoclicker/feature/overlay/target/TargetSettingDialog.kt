@@ -104,13 +104,14 @@ fun TargetSettingDialog(
 
         Row(modifier = Modifier.align(Alignment.End)) {
             TextButton(onClick = {
-                targetData.updateInterval(interval)
+
                 onDismiss()
             }) {
                 Text(text = "Thoát")
             }
             Button(onClick = {
                 Toast.makeText(context, "Đã cập nhật", Toast.LENGTH_SHORT).show()
+                targetData.updateInterval(interval)
                 targetData.updateDuration(duration)
                 onDismiss()
             }) {

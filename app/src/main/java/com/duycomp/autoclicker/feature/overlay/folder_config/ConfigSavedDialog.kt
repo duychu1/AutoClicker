@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -30,15 +32,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.duycomp.autoclicker.R
 import com.duycomp.autoclicker.data.ClickerConfigDatabaseRepositoryImpl
 import com.duycomp.autoclicker.data.UserDataRepositoryImpl
 import com.duycomp.autoclicker.database.model.ConfigPreview
@@ -47,6 +48,7 @@ import com.duycomp.autoclicker.feature.overlay.target.ManagerTargets
 import com.duycomp.autoclicker.feature.overlay.target.actingLikeLifecycle
 import com.duycomp.autoclicker.model.ConfigClick
 import com.duycomp.autoclicker.ui.theme.AcIcons
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 
 fun configSavedDialogView(
     context: Context,
@@ -59,18 +61,20 @@ fun configSavedDialogView(
 ): ComposeView {
     val composeView = ComposeView(context)
     composeView.setContent {
-        ConfigSavedDialog(
-            configClick = configClick,
-            onConfigChange = onConfigChange,
-            viewModel = ConfigSavedDialogViewModel(
-                composeView = composeView,
-                windowManager = windowManager,
-                managerTargets = managerTargets,
-                userDataRepository = userDataRepository,
-                configDatabaseRepository = configDatabaseRepository,
+        AutoClickerTheme {
+            ConfigSavedDialog(
+                configClick = configClick,
+                onConfigChange = onConfigChange,
+                viewModel = ConfigSavedDialogViewModel(
+                    composeView = composeView,
+                    windowManager = windowManager,
+                    managerTargets = managerTargets,
+                    userDataRepository = userDataRepository,
+                    configDatabaseRepository = configDatabaseRepository,
 
+                    )
             )
-        )
+        }
     }
 
     composeView.actingLikeLifecycle()
@@ -91,6 +95,8 @@ fun ConfigSavedDialog(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.7f)
+            .padding(5.dp)
+            .shadow(elevation = 5.dp, shape = MaterialTheme.shapes.small)
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.background)
             .padding(15.dp)
@@ -99,12 +105,18 @@ fun ConfigSavedDialog(
             text = "Chọn cấu hình đã lưu",
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         when (configState) {
             is ConfigUiState.Loading -> {
-                Text(text = stringResource(id = R.string.loading))
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
             is ConfigUiState.Success -> {
@@ -115,6 +127,7 @@ fun ConfigSavedDialog(
                     Text(
                         text = "Hiện tại đang trống",
                         style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                     )
@@ -182,6 +195,7 @@ fun ConfigDialogItem(
         Text(
             text = text,
             style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .padding(start = 5.dp, top = 15.dp)
         )

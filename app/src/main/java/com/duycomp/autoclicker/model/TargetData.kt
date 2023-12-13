@@ -7,7 +7,7 @@ import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.overlay.acAddView
 import com.duycomp.autoclicker.feature.overlay.target.HEIGHT_SCREEN
 import com.duycomp.autoclicker.feature.overlay.target.WIDTH_SCREEN
-import com.duycomp.autoclicker.feature.overlay.target.pointPx
+import com.duycomp.autoclicker.feature.overlay.target.rectPointSize
 import com.duycomp.autoclicker.feature.overlay.target.targetLayout
 import com.duycomp.autoclicker.feature.overlay.target.targetView
 import com.duycomp.autoclicker.feature.overlay.utils.Movement
@@ -35,7 +35,7 @@ data class TargetData(
     @OptIn(ExperimentalComposeUiApi::class)
     fun addViewAndMovement(windowManager: WindowManager, context: Context) {
         windowManager.acAddView(this.viewLayout.view, this.viewLayout.layout)
-        Movement().addTarget(windowManager = windowManager, targetData = this, context = context)
+        Movement().addTargetMovement(windowManager = windowManager, targetData = this, context = context)
     }
 
 }
@@ -55,6 +55,6 @@ fun TargetClick.asModel(context: Context, number: Int, windowManager: WindowMana
 }
 
 val startTargetsPosition = Position(
-    ((WIDTH_SCREEN /2 - pointPx /2).toFloat()),
-    ((HEIGHT_SCREEN /2 - pointPx /2).toFloat())
+    ((WIDTH_SCREEN /2 - rectPointSize /2).toFloat()),
+    ((HEIGHT_SCREEN /2 - rectPointSize /2).toFloat())
 )

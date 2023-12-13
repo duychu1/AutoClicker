@@ -4,7 +4,15 @@ import android.content.Context
 import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -23,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -31,7 +40,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.*
 import com.duycomp.autoclicker.R
 import com.duycomp.autoclicker.data.ClickerConfigDatabaseRepositoryImpl
 import com.duycomp.autoclicker.data.UserDataRepositoryImpl
@@ -43,7 +51,8 @@ import com.duycomp.autoclicker.feature.overlay.target.actingLikeLifecycle
 import com.duycomp.autoclicker.model.ConfigClick
 import com.duycomp.autoclicker.model.HmsMs
 import com.duycomp.autoclicker.model.TimerSchedule
-import com.duycomp.autoclicker.model.longToHms
+import com.duycomp.autoclicker.model.longToHmsMs
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -60,38 +69,40 @@ fun settingDialogView(
 ): ComposeView {
     val composeView = ComposeView(context)
     composeView.setContent {
-        SettingDialog(
-            configClick = configClick,
-            onDismiss = {
-                try {
-                    windowManager.removeView(composeView)
-                } catch (e: Exception) {
-                    TODO("Not yet implemented")
-                }
-            },
-            onInsertConfigClick = {
-                scopeIO.launch {
-                    val id = configDatabaseRepository.insert(it)
-                    withContext(Dispatchers.Main) {
-                        configClick.id = id.toInt()
-                        configClick.order = id.toInt()
+        AutoClickerTheme {
+            SettingDialog(
+                configClick = configClick,
+                onDismiss = {
+                    try {
+                        windowManager.removeView(composeView)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                },
+                onInsertConfigClick = {
+                    scopeIO.launch {
+                        val id = configDatabaseRepository.insert(it)
+                        withContext(Dispatchers.Main) {
+                            configClick.id = id.toInt()
+                            configClick.order = id.toInt()
+                        }
+                    }
+
+
+                },
+                onUpdateConfigClick = {
+                    scopeIO.launch {
+                        configDatabaseRepository.update(it)
+                    }
+                },
+                onUpdateEarlyClick = {
+                    scopeIO.launch {
+                        userDataRepository.setEarlyTime(it)
                     }
                 }
 
-
-            } ,
-            onUpdateConfigClick = {
-                scopeIO.launch {
-                    configDatabaseRepository.update(it)
-                }
-            },
-            onUpdateEarlyClick = {
-                scopeIO.launch {
-                    userDataRepository.setEarlyTime(it)
-                }
-            }
-
-        )
+            )
+        }
     }
 
     composeView.actingLikeLifecycle()
@@ -105,9 +116,9 @@ fun SettingDialog(
     configClick: ConfigClick,
     onDismiss: () -> Unit = {},
 //    viewModel: SettingDialogViewModel,
-    onInsertConfigClick: (ConfigClick) -> Unit = {  },
-    onUpdateConfigClick: (ConfigClick) -> Unit = {  },
-    onUpdateEarlyClick: (Long) -> Unit = {  },
+    onInsertConfigClick: (ConfigClick) -> Unit = { },
+    onUpdateConfigClick: (ConfigClick) -> Unit = { },
+    onUpdateEarlyClick: (Long) -> Unit = { },
 ) {
 //    val configClick by _configClick.collectAsStateWithLifecycle()
     var configName by remember {
@@ -130,39 +141,36 @@ fun SettingDialog(
         configClick.isInfinityLoop = isInfinityLoop
     }
 
-    SettingDialogContent(
-        configName = configName,
-        timerSchedule = timerSchedule,
-        nLoop = nLoop,
-        isInfinityLoop = isInfinityLoop,
-        onConfigNameChange = {
-            configName = it
-//            configClick.configName = it
+        SettingDialogContent(
+            configName = configName,
+            timerSchedule = timerSchedule,
+            nLoop = nLoop,
+            isInfinityLoop = isInfinityLoop,
+            onConfigNameChange = {
+                configName = it
 
-        },
-        onTimerScheduleChange = {
-            timerSchedule = it
-//            configClick.timerSchedule = it
-        },
-        onLoopChange = {
-            nLoop = it
-//            configClick.nLoop = it
-        },
-        onInfinityLoopChange = {
-            isInfinityLoop = it
-//            configClick.isInfinityLoop = it
-        },
-        onSaveCopyBtnClick = {
-            onSettingConfigComponentsChange()
-            onInsertConfigClick(configClick.copy(id = -1))
-        },
-        onUpdateBtnClick = {
-            onSettingConfigComponentsChange()
-            onUpdateConfigClick(configClick)
-        },
-        onEarlyClickChange = { onUpdateEarlyClick(it) },
-        onDismiss = onDismiss,
-    )
+            },
+            onTimerScheduleChange = {
+                timerSchedule = it
+            },
+            onLoopChange = {
+                nLoop = it
+            },
+            onInfinityLoopChange = {
+                isInfinityLoop = it
+            },
+            onSaveCopyBtnClick = {
+                onSettingConfigComponentsChange()
+                onInsertConfigClick(configClick.copy(id = -1))
+            },
+            onUpdateBtnClick = {
+                onSettingConfigComponentsChange()
+                onUpdateConfigClick(configClick)
+            },
+            onEarlyClickChange = { onUpdateEarlyClick(it) },
+            onDismiss = onDismiss,
+        )
+
 }
 
 @ExperimentalComposeUiApi
@@ -182,8 +190,12 @@ fun SettingDialogContent(
     onEarlyClickChange: (Long) -> Unit = {},
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
+//    AutoClickerTheme {
+
     Column(
         Modifier
+            .padding(5.dp)
+            .shadow(elevation = 5.dp, shape = MaterialTheme.shapes.small)
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.background)
             .padding(18.dp)
@@ -195,10 +207,15 @@ fun SettingDialogContent(
             fontWeight = FontWeight.Medium,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
-        ConfigNameEditable(title = "Tên", value = configName, onValueChange = onConfigNameChange)
+        ConfigNameEditable(
+            title = "Tên",
+            value = configName,
+            onValueChange = onConfigNameChange
+        )
 
         TimeScheduleEditable(timerSchedule, onTimerScheduleChange, onEarlyClickChange)
 
@@ -216,7 +233,7 @@ fun SettingDialogContent(
             }
 
             Spacer(modifier = Modifier.weight(1f))
-            
+
             TextButton(onClick = {
                 onDismiss()
             }) {
@@ -233,6 +250,7 @@ fun SettingDialogContent(
 
         }
     }
+
 }
 
 @Composable
@@ -245,7 +263,8 @@ private fun TimeScheduleEditable(
         Text(
             text = "Hẹn giờ",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.align(Alignment.CenterVertically)
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.CenterVertically),
         )
         Checkbox(
             checked = timerSchedule.isTimer,
@@ -258,7 +277,7 @@ private fun TimeScheduleEditable(
 
     TimeEditable(
         modifier = Modifier.padding(start = 24.dp),
-        timeHmsMs = longToHms(timerSchedule.timeMs)
+        timeHmsMs = longToHmsMs(timerSchedule.timeMs)
     ) { onTimerScheduleChange(timerSchedule.copy(timeMs = it.toLongMs())) }
 
     Spacer(modifier = Modifier.height(10.dp))
@@ -284,7 +303,7 @@ private fun TimeScheduleEditable(
 
     if (timerSchedule.isTimer) {
         Text(
-            text = "Click bắt đầu lúc: ${longToHms((timerSchedule.timeMs - timerSchedule.earlyClick)).toHHmmssSSS()}",
+            text = "Click bắt đầu lúc: ${longToHmsMs((timerSchedule.timeMs - timerSchedule.earlyClick)).stringFormatHmsMs()}",
             modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
@@ -341,6 +360,7 @@ private fun EarlyClickEditable(
     Text(
         text = "Click sớm",
         style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
     )
     Spacer(modifier = Modifier.height(8.dp))
 
@@ -349,7 +369,7 @@ private fun EarlyClickEditable(
             .padding(start = 24.dp)
             .width(180.dp),
         value = value,
-        valueUnit = stringResource(R.string.milisecond),
+        valueUnit = stringResource(R.string.millisecond),
     ) { onValueChange(it) }
 }
 
@@ -363,12 +383,13 @@ public fun ColumnScope.ConfigNameEditable(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
     )
 
     Spacer(modifier = Modifier.height(4.dp))
 
     Row(
-        modifier = Modifier.padding(start = 18.dp)
+        modifier = Modifier.padding(start = 24.dp)
     ) {
         BasicTextFieldUnderline(
             modifier = Modifier.fillMaxWidth(0.6f),

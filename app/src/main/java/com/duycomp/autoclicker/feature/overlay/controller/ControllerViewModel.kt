@@ -1,6 +1,10 @@
 package com.duycomp.autoclicker.feature.overlay.controller
 
 import android.content.Context
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.Looper
+import android.util.Log
 import android.view.WindowManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
+import com.duycomp.autoclicker.feature.overlay.clock.clockOffset
 import com.duycomp.autoclicker.feature.overlay.folder_config.configSavedDialogView
 import com.duycomp.autoclicker.feature.overlay.managerView
 import com.duycomp.autoclicker.feature.overlay.setting.settingDialogView
@@ -24,6 +29,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.TimeZone
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,12 +41,16 @@ class ControllerViewModel @Inject constructor(
     private val userDataRepository = AcAccessibility.acUserDataRepository!!
     private val configDatabaseRepository = AcAccessibility.acConfigDatabaseRepository!!
 
+    private val handlerThread: HandlerThread = HandlerThread("Click Thread")
+
+//    private val handlerThread = AcAccessibility.handlerThread
+
 //    private val _configClick = MutableStateFlow(ConfigClick())
     private val _targetClick = MutableStateFlow(
         TargetClick(
             position = startTargetsPosition,
             intervalClick = 100L,
-            durationClick = 10L
+            durationClick = 10L,
         )
     )
 
@@ -60,18 +70,21 @@ class ControllerViewModel @Inject constructor(
 
     private var configClick: ConfigClick = ConfigClick()
 
-    val onConfigChange: (ConfigClick) -> Unit =  {
+    private val onConfigChange: (ConfigClick) -> Unit =  {
         configClick = it
     }
 
-    var defaultTargetClick: TargetClick = TargetClick(
+    private var defaultTargetClick: TargetClick = TargetClick(
         position = startTargetsPosition,
         intervalClick = 100L,
         durationClick = 10L
     )
 
+    var zoneOffset: Long = TimeZone.getDefault().getOffset(System.currentTimeMillis()).toLong()
+//    var clockOffset: Long = 0
 
     init {
+        handlerThread.start()
         viewModelScope.launch {
             userDataRepository.userData.collectLatest {
                 configClick = configClick.copy(
@@ -79,11 +92,18 @@ class ControllerViewModel @Inject constructor(
                     isInfinityLoop = it.isInfinityLoop,
                     timerSchedule = TimerSchedule(earlyClick = it.earlyTime),
                 )
-
-                _targetClick.value = _targetClick.value.copy(
+                Log.d(TAG, "init: ")
+//                _targetClick.value = _targetClick.value.copy(
+//                    intervalClick = it.intervalClick,
+//                    durationClick = it.durationClick
+//                )
+                defaultTargetClick = defaultTargetClick.copy(
                     intervalClick = it.intervalClick,
                     durationClick = it.durationClick
                 )
+
+                zoneOffset = it.zoneOffset
+//                clockOffset = it.clockOffset
             }
         }
     }
@@ -91,13 +111,37 @@ class ControllerViewModel @Inject constructor(
     var isPlaying by mutableStateOf(false)
         private set
 
+//    var isPlaying by Delegates.observable(initialValue = false, onChange = {_, old, new ->
+//        if (!new)
+//        managerTargets.touchTarget(windowManager, configClick.targetsData)
+//    })
+
+//    val handler = Handler(handlerThread.looper)
     fun onPlayClick(value: Boolean) {
         isPlaying = value
+        if (isPlaying) {
+            managerTargets.unTouchTarget(windowManager, configClick.targetsData)
+            AcAccessibility.acAction!!.startClick(
+                handler = Handler(handlerThread.looper),
+                configClick = configClick,
+                clockOffset = clockOffset,
+                zoneOffset = zoneOffset,
+                isRunning = isPlaying,
+            ) {
+                isPlaying = false
+                Handler(Looper.getMainLooper()).post {
+                    managerTargets.touchTarget(windowManager, configClick.targetsData)
+                }
+            }
+        } else {
+            managerTargets.touchTarget(windowManager, configClick.targetsData)
+        }
+
     }
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onAddClick(context: Context) {
-        managerTargets.addTarget(context, windowManager, _targetClick.value, configClick.targetsData)
+        managerTargets.addTarget(context, windowManager, defaultTargetClick, configClick.targetsData)
     }
 
     fun onRemoveClick() {
@@ -144,14 +188,15 @@ class ControllerViewModel @Inject constructor(
         ).addViewToWindowManager(windowManager)
     }
 
-    fun onCloseClick(context: Context, composeView: ComposeView) {
+    fun onCloseClick(context: Context, controllerView: ComposeView) {
         managerTargets.removeAllTargets(windowManager, configClick.targetsData)
         managerView.removeClockView(windowManager)
-        windowManager.removeView(composeView)
+        windowManager.removeView(controllerView)
     }
     override fun onCleared() {
         managerTargets.removeAllTargets(windowManager, configClick.targetsData)
         managerView.removeClockView(windowManager)
+        handlerThread.quitSafely()
         super.onCleared()
     }
 }

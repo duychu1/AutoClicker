@@ -4,12 +4,12 @@ import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.WindowManager
 import com.duycomp.autoclicker.feature.overlay.target.HEIGHT_SCREEN
-import com.duycomp.autoclicker.feature.overlay.target.pointPx
+import com.duycomp.autoclicker.feature.overlay.target.rectPointSize
 
 fun clockLayout(): WindowManager.LayoutParams =
     WindowManager.LayoutParams().apply {
         x = 50
-        y = HEIGHT_SCREEN/4 - pointPx
+        y = HEIGHT_SCREEN/4 - rectPointSize
         width = WindowManager.LayoutParams.WRAP_CONTENT
         height = WindowManager.LayoutParams.WRAP_CONTENT
         gravity = Gravity.TOP or Gravity.START

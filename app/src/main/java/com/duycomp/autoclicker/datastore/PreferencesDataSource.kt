@@ -1,22 +1,15 @@
 package com.duycomp.autoclicker.datastore
 
-import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.dataStoreFile
 import com.duycomp.autoclicker.DarkThemeConfigProto
+import com.duycomp.autoclicker.TAG
 import com.duycomp.autoclicker.UserPreferences
-import com.duycomp.autoclicker.common.network.Dispatcher
-import com.duycomp.autoclicker.common.network.DownloaderDispatchers
-import com.duycomp.autoclicker.common.network.di.ApplicationScope
-import com.duycomp.autoclicker.copy
-import com.duycomp.autoclicker.model.UserData
 import com.duycomp.autoclicker.model.DarkThemeConfig
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
+import com.duycomp.autoclicker.model.UserData
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 
 class PreferencesDataSource @Inject constructor(
@@ -24,6 +17,14 @@ class PreferencesDataSource @Inject constructor(
 ) {
 
     val userData = userPreferences.data
+        .catch { exception ->
+            // dataStore.data throws an IOException when an error is encountered when reading data
+            if (exception is IOException) {
+                Log.e(TAG, "Error reading sort order preferences.", exception)
+            } else {
+                throw exception
+            }
+        }
         .map {
             UserData (
                 darkThemeConfig = when (it.darkThemeConfig) {
@@ -43,67 +44,82 @@ class PreferencesDataSource @Inject constructor(
                 nLoop = it.nLoop,
                 isInfinityLoop = it.isInfinityLoop,
                 earlyTime = it.earlyTime,
+                isManualZoneOffset = it.isManualZoneOffset,
+                isManualClockOffset = it.isManualClockOffset,
+                clockOffset = it.clockOffset,
+                zoneOffset = it.zoneOffset,
             )
         }
 
     suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
         userPreferences.updateData {
-            it.copy {
-                this.darkThemeConfig = when (darkThemeConfig) {
-                    DarkThemeConfig.FOLLOW_SYSTEM ->
-                        DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM
-                    DarkThemeConfig.LIGHT -> DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT
-                    DarkThemeConfig.DARK -> DarkThemeConfigProto.DARK_THEME_CONFIG_DARK
-                }
+            val value = when (darkThemeConfig) {
+                DarkThemeConfig.FOLLOW_SYSTEM ->
+                    DarkThemeConfigProto.DARK_THEME_CONFIG_FOLLOW_SYSTEM
+                DarkThemeConfig.LIGHT -> DarkThemeConfigProto.DARK_THEME_CONFIG_LIGHT
+                DarkThemeConfig.DARK -> DarkThemeConfigProto.DARK_THEME_CONFIG_DARK
             }
+            it.toBuilder().setDarkThemeConfig(value).build()
         }
     }
 
-    suspend fun setDynamicColorPreference(useDynamicColor: Boolean) {
+    suspend fun setDynamicColorPreference(value: Boolean) {
         userPreferences.updateData {
-            it.copy {
-                this.useDynamicColor = useDynamicColor
-            }
+            it.toBuilder().setUseDynamicColor(value).build()
         }
     }
 
     suspend fun setEarlyTime(value: Long) {
         userPreferences.updateData {
-            it.copy {
-                this.earlyTime = value
-            }
+            it.toBuilder().setEarlyTime(value).build()
         }
     }
 
     suspend fun setDurationClick(value: Long) {
         userPreferences.updateData {
-            it.copy {
-                this.durationClick = value
-            }
+            it.toBuilder().setDurationClick(value).build()
         }
     }
 
     suspend fun setIntervalClick(value: Long) {
         userPreferences.updateData {
-            it.copy {
-                this.intervalClick = value
-            }
+            it.toBuilder().setIntervalClick(value).build()
         }
     }
 
     suspend fun setInfinityLoop(value: Boolean) {
         userPreferences.updateData {
-            it.copy {
-                this.isInfinityLoop = value
-            }
+            it.toBuilder().setIsInfinityLoop(value).build()
         }
     }
 
     suspend fun setLoop(value: Int) {
         userPreferences.updateData {
-            it.copy {
-                this.nLoop = value
-            }
+            it.toBuilder().setNLoop(value).build()
+        }
+    }
+
+    suspend fun setManualZoneOffset(value: Boolean) {
+        userPreferences.updateData {
+            it.toBuilder().setIsManualZoneOffset(value).build()
+        }
+    }
+
+    suspend fun setManualClockOffset(value: Boolean) {
+        userPreferences.updateData {
+            it.toBuilder().setIsManualClockOffset(value).build()
+        }
+    }
+
+    suspend fun setClockOffset(value: Long) {
+        userPreferences.updateData {
+            it.toBuilder().setClockOffset(value).build()
+        }
+    }
+
+    suspend fun setZoneOffset(value: Long) {
+        userPreferences.updateData {
+            it.toBuilder().setZoneOffset(value).build()
         }
     }
 

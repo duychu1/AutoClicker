@@ -13,4 +13,8 @@ message UserPreferences  {
     int32 nLoop = 5;
     bool isInfinityLoop = 6;
     int64 earlyTime = 7;
+    bool isManualZoneOffset = 8;
+    bool isManualClockOffset = 9;
+    int64 clockOffset = 10;
+    int64 zoneOffset = 11;
 }

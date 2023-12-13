@@ -2,6 +2,7 @@ package com.duycomp.autoclicker.feature.overlay.utils
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
@@ -9,7 +10,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import com.duycomp.autoclicker.feature.overlay.target.HEIGHT_SCREEN
 import com.duycomp.autoclicker.feature.overlay.target.WIDTH_SCREEN
 import com.duycomp.autoclicker.feature.overlay.target.dialogLayout
-import com.duycomp.autoclicker.feature.overlay.target.pointPx
+import com.duycomp.autoclicker.feature.overlay.target.rectPointSize
 import com.duycomp.autoclicker.feature.overlay.target.targetSettingDialogView
 import com.duycomp.autoclicker.model.Position
 import com.duycomp.autoclicker.model.TargetData
@@ -87,12 +88,12 @@ class Movement {
 
     @ExperimentalComposeUiApi
     @SuppressLint("ClickableViewAccessibility")
-    fun addTarget(
+    fun addTargetMovement(
         windowManager: WindowManager,
         targetData: TargetData,
         widthScreen: Int = WIDTH_SCREEN,
         heightScreen: Int = HEIGHT_SCREEN,
-        rectPointSize: Int = pointPx,
+        rectSize: Int = rectPointSize,
         context: Context,
     ){
         val maxDurationClick = 200L
@@ -131,10 +132,7 @@ class Movement {
                     windowManager.updateViewLayout(view, layoutParams)
                     targetData.updatePosition(layoutParams.position)
 
-//                    layoutParams.flags += WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-//                    windowManager.updateViewLayout(view, layoutParams)
-
-//                    Log.d(TAG, "moving: layout x= ${layoutParams.x}, y = ${layoutParams.y} ")
+                    Log.d(TAG, "addTargetMovement: moving: layout x= ${targetData.viewLayout.layout.x}, y = ${targetData.viewLayout.layout.y} ")
 
                     initial = null
                     val durationClick = getCurrentMillis() - startTouchTime!!
@@ -144,7 +142,6 @@ class Movement {
 
                     ) {
 
-//                        managerView.addTargetSettingDialogToWindowManager(context, targetData, windowManager)
                         ViewLayout(
                             targetSettingDialogView(context,targetData, windowManager),
                             dialogLayout()
@@ -153,7 +150,7 @@ class Movement {
                     }
                 }
             }
-            // Log.d("paramsPosition", "showOverlay: ${layoutParams.x}, ${layoutParams.y}")
+            // Log.d("paramsPosition", "showOverlay: ${targetData.viewLayout.layout.x}, ${targetData.viewLayout.layout.y}")
             false
         }
     }
@@ -161,3 +158,5 @@ class Movement {
     private fun getCurrentMillis(): Long = System.currentTimeMillis()
 
 }
+
+const val TAG = "Movement"

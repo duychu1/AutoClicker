@@ -1,9 +1,8 @@
 package com.duycomp.autoclicker.model
 
-import java.time.ZoneOffset
-
 data class AcClock(
-    val isManual: Boolean,
+    val isTimeManual: Boolean,
+    val isOffsetManual: Boolean,
     val clockOffset: Long,
-    val zoneOffset: ZoneOffset
+    val zoneOffset: Long,
 )
