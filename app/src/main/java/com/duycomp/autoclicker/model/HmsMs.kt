@@ -10,13 +10,14 @@ data class HmsMs(
         return ((h*3600 + m*60 + s)*1000 + ms).toLong()
     }
 
-    fun toHHmmssSSS():String {
+    fun stringFormatHmsMs():String {
         return String.format("%02d:%02d:%02d.%03d", h,m,s,ms)
     }
 }
-fun longToHms(timeMilis: Long): HmsMs {
-    var timeMs = timeMilis
+fun longToHmsMs(timeMillis: Long): HmsMs {
+    var timeMs = timeMillis
     if (timeMs < 0) timeMs += 24*3600*1000
+
     val msParts = timeMs.toInt()%1000
     val timeSeconds = timeMs.toInt()/1000
     return HmsMs(
@@ -26,6 +27,10 @@ fun longToHms(timeMilis: Long): HmsMs {
         ms = msParts
     )
 }
-fun longToHHmmssSSS(milis: Long): String {
-    return longToHms(milis).toHHmmssSSS()
+fun longToHHmmssSSS(millis: Long): String {
+    return longToHmsMs(millis).stringFormatHmsMs()
+}
+
+fun Long.toStringFormatHmsMs(): String {
+    return longToHmsMs(this).stringFormatHmsMs()
 }

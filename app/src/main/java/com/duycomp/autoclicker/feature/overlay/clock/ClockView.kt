@@ -4,19 +4,21 @@ import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.duycomp.autoclicker.feature.overlay.target.actingLikeLifecycle
 import com.duycomp.autoclicker.ui.theme.clockBackground
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +27,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 
 var clockOffset = 0
+
 @SuppressLint("SimpleDateFormat")
 fun clockView(
     context: Context,
@@ -41,31 +44,39 @@ fun clockView(
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun ClockContent() {
-    val time = remember { mutableStateOf("") }
+fun ClockContent(
+    viewModel: ClockViewModel = hiltViewModel()
+) {
+    val time by viewModel.clock.collectAsStateWithLifecycle()
 
-    Text(
-        text = time.value,
-        fontWeight = FontWeight.Medium,
-        style = MaterialTheme.typography.headlineMedium,
+    Box(
         modifier = Modifier
+            .padding(5.dp)
+            .shadow(elevation = 5.dp, shape = MaterialTheme.shapes.large)
             .clip(MaterialTheme.shapes.large)
-            .background(clockBackground)
-            .border(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.primary,
-                shape = MaterialTheme.shapes.large
-            )
-            .padding(vertical = 15.dp, horizontal = 24.dp)
-    )
-
-    LaunchedEffect(key1 = Unit) {
-        withContext(Dispatchers.IO) {
-            processingTime(time)
-        }
+    ) {
+        Text(
+            text = time,
+            fontWeight = FontWeight.Medium,
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.large)
+                .background(clockBackground)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.large
+                )
+                .padding(vertical = 6.dp, horizontal = 16.dp)
+        )
     }
-}
 
+//    LaunchedEffect(key1 = Unit) {
+//        withContext(Dispatchers.IO) {
+//            processingTime(time)
+//        }
+//    }
+}
 
 @SuppressLint("SimpleDateFormat")
 private suspend fun processingTime(time: MutableState<String>) {
@@ -83,15 +94,14 @@ private suspend fun processingTime(time: MutableState<String>) {
 //        Log.d("TAG", "processingTime: ${Thread.currentThread().name}")
 
 //        if(preCurrent - finalResetTime > 30000) {
-//            if(!isplay) {
+//            if(!isPlay) {
 //                CoroutineScope(Dispatchers.IO).launch {
-//                    saiso = getDeltaTime()
+//                    clockOffset = getDeltaTime()
 //                }
 //            }
-//            preCurrent = getCurentTime() - saiso
+//            preCurrent = getCurrentTime() - clockOffset
 //            finalResetTime = preCurrent
 //        }
     }
 }
 
-fun getCurrentTime(): Long = System.currentTimeMillis()

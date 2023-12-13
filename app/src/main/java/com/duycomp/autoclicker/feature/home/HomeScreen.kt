@@ -9,24 +9,39 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -34,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -45,9 +61,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.duycomp.autoclicker.R
+import com.duycomp.autoclicker.feature.home.dialog.DialogNotification
+import com.duycomp.autoclicker.feature.overlay.clock.clockOffset
 import com.duycomp.autoclicker.model.DarkThemeConfig
 import com.duycomp.autoclicker.model.UserData
-import java.util.*
+import com.duycomp.autoclicker.ui.theme.AcIcons
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -56,8 +75,10 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.userDataUiState.collectAsStateWithLifecycle()
     val isOverlaying by viewModel.isOverlaying.collectAsStateWithLifecycle()
+    val clock by viewModel.clock.collectAsStateWithLifecycle()
+    val isAccessibilityNotify = viewModel.isAccessibilityNotify
 
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
 
     Column(
         Modifier
@@ -81,9 +102,24 @@ fun HomeScreen(
                     onIntervalClickChange = viewModel::onIntervalClickChange,
                     onInfinityLoopChange = viewModel::onInfinityLoopChange,
                     onLoopChange = viewModel::onLoopChange,
-                    onStartOverlayButtonClick = viewModel::onStartButtonClick,
-                    isOverlayController = isOverlaying
+                    onStartOverlayButtonClick = viewModel::onStartOverlay,
+                    isOverlayController = isOverlaying,
+                    clock = clock
                 )
+
+                if (isAccessibilityNotify) {
+                    DialogNotification(
+                        title = stringResource(id = R.string.accessibility_notify_title),
+                        description = stringResource(R.string.accessibility_notify_description),
+                        onConfirm = {
+                            viewModel.openAccessibilitySetting(context)
+                            viewModel.updateAccessibilityNotify(false)
+                        },
+                        onDismiss = {
+                            viewModel.updateAccessibilityNotify(false)
+                        }
+                    )
+                }
             }
         }
     }
@@ -99,6 +135,7 @@ fun ColumnScope.HomeScreenContent(
     onLoopChange: (Int) -> Unit = { },
     onStartOverlayButtonClick: (Context) -> Unit = { },
     isOverlayController: Boolean = false,
+    clock: String = "13:34:56.7",
 ) {
 //    BannerAds()
 
@@ -141,12 +178,16 @@ fun ColumnScope.HomeScreenContent(
         )
 
         Spacer(modifier = Modifier.height(20.dp))
-
         DividerAlpha10()
-
         Spacer(modifier = Modifier.height(20.dp))
 
         LoopSetting(userData.isInfinityLoop, userData.nLoop, onInfinityLoopChange, onLoopChange)
+
+        Spacer(modifier = Modifier.height(10.dp))
+        DividerAlpha10()
+        Spacer(modifier = Modifier.height(20.dp))
+
+        ClockSetting(clock)
     }
 
     val launchSomeActivity =
@@ -161,6 +202,12 @@ fun ColumnScope.HomeScreenContent(
 
     val context = LocalContext.current
 
+    var isAccessibilityNotify by remember {
+        mutableStateOf(false)
+    }
+
+
+
     Button(
         modifier = Modifier
             .align(Alignment.CenterHorizontally)
@@ -169,21 +216,31 @@ fun ColumnScope.HomeScreenContent(
             onStartOverlayButtonClick(context)
         }
     ) {
-        if (isOverlayController) Text(text = "Kết thúc", fontSize = 16.sp)
-        else Text(text = "Bắt đầu", fontSize = 16.sp)
+//        if (isOverlayController) Text(text = "Kết thúc", fontSize = 16.sp)
+//        else
+        Text(text = "Bắt đầu", fontSize = 16.sp)
     }
 //    StartButton(context, onStartOverlay, launchSomeActivity)
 //    CloseButton(onCloseOverlay)
 
     Spacer(modifier = Modifier.height(15.dp))
+    var isTutorialDialog by remember {
+        mutableStateOf(false)
+    }
+
+    var isResponseDialog by remember {
+        mutableStateOf(false)
+    }
 
     Column(modifier = Modifier.fillMaxWidth())
     {
-        ButtonCustom(text = stringResource(R.string.tutorial))
+        TutorialButton(text = stringResource(R.string.tutorial))
 
         Spacer(modifier = Modifier.height(10.dp))
+        ButtonCustom(text = stringResource(R.string.feedback))
 
-        ButtonCustom(text = stringResource(R.string.response))
+//        Spacer(modifier = Modifier.height(10.dp))
+//        ButtonCustom(text = stringResource(R.string.other_version))
     }
 
     Spacer(modifier = Modifier.height(10.dp))
@@ -195,6 +252,46 @@ fun ColumnScope.HomeScreenContent(
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f)
     )
+}
+
+@Composable
+private fun ClockSetting(
+    time: String,
+    offset: Int = clockOffset,
+    isTimeManual: Boolean = false,
+    isOffsetManual: Boolean = false,
+) {
+    Text(
+        text = stringResource(R.string.clock_title),
+        style = MaterialTheme.typography.titleMedium
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 24.dp),
+        verticalAlignment = Alignment.CenterVertically
+
+    ) {
+
+        if (isTimeManual) Text(text = ".")
+        Text(text = time)
+        Spacer(modifier = Modifier.width(40.dp))
+
+        if (isOffsetManual) Text(text = ".")
+        Text(text = "Độ lệch:  $offset ms")
+        Spacer(modifier = Modifier.weight(1f))
+
+        Icon(
+            imageVector = AcIcons.dropDown,
+            contentDescription = null,
+            modifier = Modifier
+                .clip(MaterialTheme.shapes.small)
+                .clickable {
+
+                }
+        )
+    }
 }
 
 @Composable
@@ -249,7 +346,8 @@ fun LoopSetting(
 ) {
     Text(
         text = stringResource(R.string.loop_title),
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
     )
     Spacer(modifier = Modifier.height(5.dp))
 
@@ -292,6 +390,7 @@ fun LoopSetting(
 
         Text(
             text = stringResource(R.string.infinity_loop_description),
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .padding(horizontal = 10.dp)
                 .align(Alignment.CenterVertically)
@@ -313,9 +412,11 @@ public fun ColumnScope.InputItem(
     Spacer(modifier = Modifier.height(8.dp))
 
     BasicTextFieldUnderlineUnit(
-        modifier = Modifier.padding(start = 24.dp).fillMaxWidth(0.7f),
+        modifier = Modifier
+            .padding(start = 24.dp)
+            .fillMaxWidth(0.7f),
         value = value,
-        valueUnit = stringResource(R.string.milisecond),
+        valueUnit = stringResource(R.string.millisecond),
     ) { onValueChange(it) }
 
 }
@@ -348,7 +449,8 @@ fun BasicTextFieldUnderlineUnit(
 
         Text(
             text = valueUnit,
-            Modifier
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier
                 .align(Alignment.Bottom)
                 .padding(horizontal = 5.dp)
         )
@@ -383,7 +485,8 @@ fun BasicTextFieldUnderlineUnit(
 
         Text(
             text = valueUnit,
-            Modifier
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier
                 .align(Alignment.Bottom)
                 .padding(horizontal = 5.dp)
         )
@@ -437,8 +540,9 @@ fun BasicTextFieldUnderline(
 private fun ButtonCustom(
     text: String,
     onClick: () -> Unit = {},
+    expandContent: @Composable ColumnScope.() -> Unit = { },
 ) {
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
@@ -448,48 +552,96 @@ private fun ButtonCustom(
         Text(
             text = text,
             style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.padding(15.dp)
+        )
+        expandContent()
+    }
+
+}
+
+@Composable
+private fun TutorialButton(
+    text: String,
+    onClick: () -> Unit = {},
+) {
+    var isTutorialDialog by remember {
+        mutableStateOf(false)
+    }
+
+    ButtonCustom(
+        text = text,
+        onClick = {
+            isTutorialDialog = !isTutorialDialog
+            onClick()
+        }
+    ) {
+
+        AnimatedVisibility(
+            visible = isTutorialDialog,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Box {
+                    Image(
+                        painter = painterResource(id = R.drawable.tutorial),
+                        contentDescription = null,
+                        modifier = Modifier.clip(MaterialTheme.shapes.medium)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+                Button(
+                    onClick = { isTutorialDialog = false },
+                ) {
+                    Text(text = stringResource(R.string.hide))
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+
+            }
+        }
+    }
+}
+
+
+@Preview(name = "Light", uiMode = UI_MODE_NIGHT_NO)
+@Preview(name = "Dark", uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun PreBtnCustom() {
+    AutoClickerTheme {
+
+        ButtonCustom(
+            text = stringResource(id = R.string.tutorial)
         )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
-@Composable
-fun HomePreview() {
-    Surface(
-        modifier = Modifier
-            .fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Column(Modifier.fillMaxSize()) {
-            CenterAlignedTopAppBar(
-                title = { Text("AutoClicker") }
-            )
-
-            HomeScreenContent(userData = fakeUserData)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
+//@Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_NO)
 @Preview(showSystemUi = true, uiMode = UI_MODE_NIGHT_YES)
 @Composable
-fun HomePreviewDark() {
-    Surface(
-        modifier = Modifier
-            .fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Column(Modifier.fillMaxSize()) {
-            CenterAlignedTopAppBar(
-                title = { Text("AutoClicker") }
-            )
+fun HomePreview() {
+    AutoClickerTheme {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(),
+            color = MaterialTheme.colorScheme.surface
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                CenterAlignedTopAppBar(
+                    title = { Text("AutoClicker") }
+                )
 
-            HomeScreenContent(userData = fakeUserData)
+                HomeScreenContent(userData = fakeUserData)
+
+            }
         }
     }
 }
+
 
 val fakeUserData = UserData(
     darkThemeConfig = DarkThemeConfig.DARK,

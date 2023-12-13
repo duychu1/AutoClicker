@@ -53,7 +53,7 @@ open class ManagerView() {
         targetSettingDialog!!.addViewToWindowManager(windowManager)
     }
     fun removeTargetSettingDialog(windowManager: WindowManager) {
-        this.targetSettingDialog?.also {
+        this.targetSettingDialog!!.also {
             windowManager.removeView(it.view)
         }
         this.targetSettingDialog = null
@@ -76,7 +76,7 @@ open class ManagerView() {
         this.clock?.also {
             windowManager.removeView(it.view)
         }
-        this.controller = null
+        this.clock = null
     }
 
 }

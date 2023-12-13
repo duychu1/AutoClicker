@@ -1,21 +1,11 @@
 package com.duycomp.autoclicker.datastore
 
-import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.dataStoreFile
 import com.duycomp.autoclicker.DarkThemeConfigProto
 import com.duycomp.autoclicker.UserPreferences
-import com.duycomp.autoclicker.common.network.Dispatcher
-import com.duycomp.autoclicker.common.network.DownloaderDispatchers
-import com.duycomp.autoclicker.common.network.di.ApplicationScope
 import com.duycomp.autoclicker.copy
-import com.duycomp.autoclicker.model.UserData
 import com.duycomp.autoclicker.model.DarkThemeConfig
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
+import com.duycomp.autoclicker.model.UserData
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -25,6 +15,7 @@ class PreferencesDataSource @Inject constructor(
 
     val userData = userPreferences.data
         .map {
+//            AcClock(isManual = false, clockOffset = 300, zoneOffset = "+07:00")
             UserData (
                 darkThemeConfig = when (it.darkThemeConfig) {
                     null,
@@ -43,6 +34,10 @@ class PreferencesDataSource @Inject constructor(
                 nLoop = it.nLoop,
                 isInfinityLoop = it.isInfinityLoop,
                 earlyTime = it.earlyTime,
+                isManualZoneOffset = it.isManualZoneOffset,
+                isManualClockOffset = it.isManualClockOffset,
+                clockOffset = it.clockOffset,
+                zoneOffset = it.zoneOffset,
             )
         }
 
@@ -103,6 +98,38 @@ class PreferencesDataSource @Inject constructor(
         userPreferences.updateData {
             it.copy {
                 this.nLoop = value
+            }
+        }
+    }
+
+    suspend fun setManualZoneOffset(value: Boolean) {
+        userPreferences.updateData {
+            it.copy {
+                this.isManualZoneOffset = value
+            }
+        }
+    }
+
+    suspend fun setManualClockOffset(value: Boolean) {
+        userPreferences.updateData {
+            it.copy {
+                this.isManualClockOffset = value
+            }
+        }
+    }
+
+    suspend fun setClockOffset(value: Long) {
+        userPreferences.updateData {
+            it.copy {
+                this.clockOffset = value
+            }
+        }
+    }
+
+    suspend fun setZoneOffset(value: Long) {
+        userPreferences.updateData {
+            it.copy {
+                this.zoneOffset = value
             }
         }
     }

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +48,7 @@ import com.duycomp.autoclicker.feature.overlay.target.ManagerTargets
 import com.duycomp.autoclicker.feature.overlay.target.actingLikeLifecycle
 import com.duycomp.autoclicker.model.ConfigClick
 import com.duycomp.autoclicker.ui.theme.AcIcons
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 
 fun configSavedDialogView(
     context: Context,
@@ -59,18 +61,20 @@ fun configSavedDialogView(
 ): ComposeView {
     val composeView = ComposeView(context)
     composeView.setContent {
-        ConfigSavedDialog(
-            configClick = configClick,
-            onConfigChange = onConfigChange,
-            viewModel = ConfigSavedDialogViewModel(
-                composeView = composeView,
-                windowManager = windowManager,
-                managerTargets = managerTargets,
-                userDataRepository = userDataRepository,
-                configDatabaseRepository = configDatabaseRepository,
+        AutoClickerTheme {
+            ConfigSavedDialog(
+                configClick = configClick,
+                onConfigChange = onConfigChange,
+                viewModel = ConfigSavedDialogViewModel(
+                    composeView = composeView,
+                    windowManager = windowManager,
+                    managerTargets = managerTargets,
+                    userDataRepository = userDataRepository,
+                    configDatabaseRepository = configDatabaseRepository,
 
+                    )
             )
-        )
+        }
     }
 
     composeView.actingLikeLifecycle()
@@ -91,6 +95,8 @@ fun ConfigSavedDialog(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight(0.7f)
+            .padding(5.dp)
+            .shadow(elevation = 5.dp, shape = MaterialTheme.shapes.small)
             .clip(MaterialTheme.shapes.small)
             .background(MaterialTheme.colorScheme.background)
             .padding(15.dp)
@@ -99,7 +105,8 @@ fun ConfigSavedDialog(
             text = "Chọn cấu hình đã lưu",
             fontWeight = FontWeight.Medium,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         when (configState) {
@@ -115,6 +122,7 @@ fun ConfigSavedDialog(
                     Text(
                         text = "Hiện tại đang trống",
                         style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .align(Alignment.CenterHorizontally)
                     )
@@ -182,6 +190,7 @@ fun ConfigDialogItem(
         Text(
             text = text,
             style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier
                 .padding(start = 5.dp, top = 15.dp)
         )

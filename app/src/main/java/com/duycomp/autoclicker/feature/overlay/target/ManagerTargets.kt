@@ -42,10 +42,10 @@ class ManagerTargets() {
         }
 
         fun unTouchTarget(windowManager: WindowManager, targetsData: MutableList<TargetData>) {
-
             targetsData.forEach {
                 it.viewLayout.layout.flags += WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 windowManager.updateViewLayout(it.viewLayout.view, it.viewLayout.layout)
+//                Log.d(TAG, "unTouchTarget: layoutFlags: ${it.viewLayout.layout.flags}")
             }
 
         }
@@ -55,6 +55,8 @@ class ManagerTargets() {
             targetsData.forEach {
                 it.viewLayout.layout.flags -= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 windowManager.updateViewLayout(it.viewLayout.view, it.viewLayout.layout)
+//                Log.d(TAG, "touchTarget: layoutFlags: ${it.viewLayout.layout.flags}")
+
             }
 
         }
@@ -75,3 +77,5 @@ class ManagerTargets() {
         }
 
 }
+
+const val TAG = "ManagerTargets"

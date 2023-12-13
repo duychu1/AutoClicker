@@ -3,6 +3,7 @@ package com.duycomp.autoclicker.ui.theme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Adjust
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FolderShared
@@ -25,4 +26,5 @@ object AcIcons {
     val move = Icons.Default.ZoomOutMap
     val close = Icons.Default.Close
     val pointClick = Icons.Default.Adjust
+    val dropDown = Icons.Default.ArrowDropDown
 }
