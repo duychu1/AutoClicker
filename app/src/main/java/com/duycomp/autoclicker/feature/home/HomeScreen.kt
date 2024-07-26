@@ -63,6 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.duycomp.autoclicker.R
 import com.duycomp.autoclicker.feature.home.dialog.DialogNotification
+import com.duycomp.autoclicker.feature.home.dialog.FeedbackDialog
 import com.duycomp.autoclicker.feature.overlay.clock.clockOffset
 import com.duycomp.autoclicker.model.DarkThemeConfig
 import com.duycomp.autoclicker.model.UserData
@@ -230,8 +231,12 @@ fun ColumnScope.HomeScreenContent(
         mutableStateOf(false)
     }
 
-    var isResponseDialog by remember {
+    var isFeedbackDialog by remember {
         mutableStateOf(false)
+    }
+
+    if (isFeedbackDialog) FeedbackDialog {
+        isFeedbackDialog = false
     }
 
     Column(modifier = Modifier.fillMaxWidth())
@@ -239,7 +244,7 @@ fun ColumnScope.HomeScreenContent(
         TutorialButton(text = stringResource(R.string.tutorial))
 
         Spacer(modifier = Modifier.height(10.dp))
-        ButtonCustom(text = stringResource(R.string.feedback))
+        ButtonCustom(text = stringResource(R.string.feedback), onClick = { isFeedbackDialog = true })
 
 //        Spacer(modifier = Modifier.height(10.dp))
 //        ButtonCustom(text = stringResource(R.string.other_version))
