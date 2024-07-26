@@ -127,12 +127,13 @@ class ControllerViewModel @Inject constructor(
                 clockOffset = clockOffset,
                 zoneOffset = zoneOffset,
                 isRunning = isPlaying,
-            ) {
-                isPlaying = false
-                Handler(Looper.getMainLooper()).post {
-                    managerTargets.touchTarget(windowManager, configClick.targetsData)
+                onFinish = {
+                    isPlaying = false
+                    Handler(Looper.getMainLooper()).post {
+                        managerTargets.touchTarget(windowManager, configClick.targetsData)
+                    }
                 }
-            }
+            )
         } else {
             managerTargets.touchTarget(windowManager, configClick.targetsData)
         }

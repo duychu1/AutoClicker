@@ -9,6 +9,7 @@ import com.duycomp.autoclicker.feature.overlay.clock.clockOffset
 import com.duycomp.autoclicker.feature.overlay.target.rectPointSize
 import com.duycomp.autoclicker.model.ConfigClick
 import com.duycomp.autoclicker.model.TargetData
+import com.duycomp.autoclicker.model.TimerSchedule
 import com.duycomp.autoclicker.model.toStringFormatHmsMs
 import java.text.SimpleDateFormat
 
@@ -55,10 +56,7 @@ class Action(val accessibility: AcAccessibility) {
             )
             val systemDayMillis = (System.currentTimeMillis() + zoneOffset) % dayInMillis
             Log.d(TAG, "startClick: clockOffset = $clockOffset")
-            delayTime =
-                timerSchedule.timeMs - systemDayMillis + clockOffset - timerSchedule.earlyClick
-
-            if (delayTime<0) delayTime += dayInMillis
+            delayTime = calculateDelay(delayTime, timerSchedule, systemDayMillis, clockOffset)
 
             Log.d(TAG, "startClick: systemTime: ${systemDayMillis.toStringFormatHmsMs()}")
             Log.d(
@@ -66,11 +64,26 @@ class Action(val accessibility: AcAccessibility) {
                 "startClick: waiting: delayTime = $delayTime = ${delayTime.toStringFormatHmsMs()}"
             )
             Log.d(TAG, "startClick: timeout = ${System.currentTimeMillis()}")
+
             handler.postDelayed(runnable, delayTime)
 
         } else {
             handler.postDelayed(runnable, delayTime)
         }
+    }
+
+    private fun calculateDelay(
+        delayTime: Long,
+        timerSchedule: TimerSchedule,
+        systemDayMillis: Long,
+        clockOffset: Int
+    ): Long {
+        var delayTime1 = delayTime
+        delayTime1 =
+            timerSchedule.timeMs - systemDayMillis + clockOffset - timerSchedule.earlyClick
+
+        if (delayTime1 < 0) delayTime1 += dayInMillis
+        return delayTime1
     }
 
 //    fun initClick(targetsClick: MutableList<TargetData>, nLoop: Int = 1) {

@@ -19,4 +19,5 @@
     <string name="accessibility_notify_description">Cần cấp quyền *Dịch vụ Trợ Năng (Accessibility)* để thực hiện click (Nếu đang bật thì hãy tắt đi và bật lại)</string>
     <string name="other_version">Phiên bản khác</string>
 
+    <string name="feedback_text">Để lại phản hồi hay lỗi khi sử dụng Auto Chạm tại website.</string>
 </resources>

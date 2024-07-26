@@ -21,27 +21,24 @@ suspend fun getClockOffsetTimeIO(currentClockOffset: Long = 0L): Result<Long> =
         val url = "https://www.timeapi.io/api/Time/current/zone?timeZone=UTC"
 
         var clockOffsetCurrent = currentClockOffset
-        for (i in 1..10) {
-
-            var result = acRequest(url)
-
-            for (j in 1..4) {
-                if (result is Result.Success) break
-                else {
-                    delay(500)
-                    result = acRequest(url)
-                }
+        repeat(10) { attempt ->
+            val result = try {
+                acRequest(url)
+            } catch (e: Exception) {
+                Result.Error(e) // Handle specific exceptions
             }
 
             when (result) {
                 is Result.Error -> {
-                    return@withContext Result.Error(result.exception)
+                    // Log error with attempt number
+                    Log.e(TAG, "Error fetching time (attempt $attempt): ${result.exception?.message}")
+                    delay(500) // Delay before retry
                 }
-
                 is Result.Success -> {
                     val acResponse = result.data
                     val timeIO = fromJsonToTimeIO(acResponse.strJson)
-                        ?: return@withContext Result.Error()
+                        ?: return@withContext Result.Error(Exception("Parsing failed"))
+
                     val timeOnlineMilis =
                         timeIO.minute * 60000 + timeIO.seconds * 1000 + timeIO.milliSeconds
 

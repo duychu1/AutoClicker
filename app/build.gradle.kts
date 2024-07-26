@@ -1,6 +1,3 @@
-import org.gradle.configurationcache.extensions.capitalized
-import java.util.Locale
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -134,7 +131,12 @@ dependencies {
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.moshi)
+
+
     implementation(libs.moshi.core)
+    implementation(libs.moshi.kotlin)
     ksp(libs.moshi.kotlin.codegen)
 
     //datastore
