@@ -42,6 +42,7 @@ import com.duycomp.autoclicker.feature.overlay.utils.MyLifecycleOwner
 import com.duycomp.autoclicker.feature.overlay.utils.MyViewModelStoreOwner
 import com.duycomp.autoclicker.model.TargetData
 import com.duycomp.autoclicker.model.ViewLayout
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -72,7 +73,8 @@ fun TargetSettingDialog(
             modifier = Modifier
                 .fillMaxWidth(),
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Spacer(modifier = Modifier.height(20.dp))
 
@@ -129,16 +131,18 @@ fun targetSettingDialogView(
 ): ComposeView {
     val composeView = ComposeView(context)
     composeView.setContent {
-        TargetSettingDialog(
-            targetData = targetData,
-            onDismiss = {
-                try {
-                    windowManager.removeView(composeView)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+        AutoClickerTheme {
+            TargetSettingDialog(
+                targetData = targetData,
+                onDismiss = {
+                    try {
+                        windowManager.removeView(composeView)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     composeView.actingLikeLifecycle()

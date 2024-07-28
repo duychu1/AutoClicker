@@ -414,6 +414,7 @@ public fun ColumnScope.InputItem(
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onBackground,
     )
 
     Spacer(modifier = Modifier.height(8.dp))
