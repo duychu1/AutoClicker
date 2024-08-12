@@ -13,6 +13,8 @@ import com.duycomp.autoclicker.model.TimerSchedule
 import com.duycomp.autoclicker.model.toStringFormatHmsMs
 import java.text.SimpleDateFormat
 
+var isClick = false
+
 class Action(val accessibility: AcAccessibility) {
 
     @SuppressLint("SimpleDateFormat", "SuspiciousIndentation")
@@ -37,7 +39,7 @@ class Action(val accessibility: AcAccessibility) {
             onFinish()
         }
 
-        var delayTime: Long = 50
+        var delayTime: Long = 150
 
 //        Toast.makeText(
 //            appcontext, "Đang hẹn:  " +
@@ -109,7 +111,7 @@ class Action(val accessibility: AcAccessibility) {
     ) {
         repeat(nLoop) {
             targetsClick.forEachIndexed {index, element ->
-                if (!isRunning) {
+                if (!isClick) {
                     return
                 }
                 Log.d(TAG, "startClick: timeClick = ${SimpleDateFormat("HH:mm:ss.S").format(System.currentTimeMillis() - clockOffset)}")

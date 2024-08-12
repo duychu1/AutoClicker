@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.duycomp.autoclicker.database.model.TargetClick
 import com.duycomp.autoclicker.feature.accessibility.AcAccessibility
+import com.duycomp.autoclicker.feature.accessibility.isClick
 import com.duycomp.autoclicker.feature.overlay.clock.clockOffset
 import com.duycomp.autoclicker.feature.overlay.folder_config.configSavedDialogView
 import com.duycomp.autoclicker.feature.overlay.managerView
@@ -35,7 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ControllerViewModel @Inject constructor(
 //    private val userDataRepository: UserDataRepositoryImpl
-): ViewModel() {
+) : ViewModel() {
     private val windowManager: WindowManager = AcAccessibility.windowManager!!
     private val managerTargets: ManagerTargets = ManagerTargets()
     private val userDataRepository = AcAccessibility.acUserDataRepository!!
@@ -45,7 +46,7 @@ class ControllerViewModel @Inject constructor(
 
 //    private val handlerThread = AcAccessibility.handlerThread
 
-//    private val _configClick = MutableStateFlow(ConfigClick())
+    //    private val _configClick = MutableStateFlow(ConfigClick())
     private val _targetClick = MutableStateFlow(
         TargetClick(
             position = startTargetsPosition,
@@ -70,7 +71,7 @@ class ControllerViewModel @Inject constructor(
 
     private var configClick: ConfigClick = ConfigClick()
 
-    private val onConfigChange: (ConfigClick) -> Unit =  {
+    private val onConfigChange: (ConfigClick) -> Unit = {
         configClick = it
     }
 
@@ -116,9 +117,10 @@ class ControllerViewModel @Inject constructor(
 //        managerTargets.touchTarget(windowManager, configClick.targetsData)
 //    })
 
-//    val handler = Handler(handlerThread.looper)
+    //    val handler = Handler(handlerThread.looper)
     fun onPlayClick(value: Boolean) {
         isPlaying = value
+        isClick = value
         if (isPlaying) {
             managerTargets.unTouchTarget(windowManager, configClick.targetsData)
             AcAccessibility.acAction!!.startClick(
@@ -129,6 +131,7 @@ class ControllerViewModel @Inject constructor(
                 isRunning = isPlaying,
                 onFinish = {
                     isPlaying = false
+                    isClick = false
                     Handler(Looper.getMainLooper()).post {
                         managerTargets.touchTarget(windowManager, configClick.targetsData)
                     }
@@ -142,7 +145,12 @@ class ControllerViewModel @Inject constructor(
 
     @OptIn(ExperimentalComposeUiApi::class)
     fun onAddClick(context: Context) {
-        managerTargets.addTarget(context, windowManager, defaultTargetClick, configClick.targetsData)
+        managerTargets.addTarget(
+            context,
+            windowManager,
+            defaultTargetClick,
+            configClick.targetsData
+        )
     }
 
     fun onRemoveClick() {
@@ -194,6 +202,7 @@ class ControllerViewModel @Inject constructor(
         managerView.removeClockView(windowManager)
         windowManager.removeView(controllerView)
     }
+
     override fun onCleared() {
         managerTargets.removeAllTargets(windowManager, configClick.targetsData)
         managerView.removeClockView(windowManager)

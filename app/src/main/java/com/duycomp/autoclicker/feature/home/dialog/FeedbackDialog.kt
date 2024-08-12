@@ -1,5 +1,6 @@
 package com.duycomp.autoclicker.feature.home.dialog
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
@@ -9,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -19,9 +19,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.duycomp.autoclicker.R
+import com.duycomp.autoclicker.ui.theme.AutoClickerTheme
 
 @Composable
 fun FeedbackDialog(
@@ -39,57 +41,19 @@ fun FeedbackDialog(
                 color = MaterialTheme.colorScheme.onBackground,
             )
 
-//            Column(Modifier.fillMaxWidth()) {
-//                Spacer(modifier = Modifier.height(3.dp))
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .clip(MaterialTheme.shapes.medium)
-//                        .background(Color.LightGray),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//                    Text(
-//                        // https://forms.gle/XG1yymq2qyxvvqaY7
-//                        //https://www.facebook.com/276536540874604/posts/276539017541023
-//                        text = "Phản hồi",
-//                        textAlign = TextAlign.Center,
-//                        fontWeight = FontWeight.Bold,
-//                        fontSize = 18.sp,
-//                        color = Purple700,
-//                        modifier = Modifier.padding(5.dp)
-//                    )
-//                }
-//
-//                Text(text = "", Modifier.height(1.dp))
-//            }
-
-
         },
 
         text = {
-//            Box(
-//                contentAlignment = Alignment.Center
-//            ) {
-//                Text(
-//                    text = "",
-//                    fontWeight = FontWeight.Medium,
-//                    fontSize = 17.sp,
-//                    modifier = Modifier.padding(top = 20.dp)
-//                )
-//            }
-
 
             val annotatedLinkString: AnnotatedString = buildAnnotatedString {
 
                 val str: String = stringResource(id = R.string.feedback_text)
                 val webStartIndex = str.indexOf("website.")
                 val webEndIndex = webStartIndex + 8
-//                val fbStartIndex  = str.indexOf("này trên")
-//                val fbEndIndext   = fbStartIndex + 3
                 append(str)
                 addStyle(
                     style = SpanStyle(
-                        color = Color.Blue,
+                        color = MaterialTheme.colorScheme.inversePrimary,
                         fontSize = 17.sp,
                         textDecoration = TextDecoration.Underline
                     ),
@@ -104,25 +68,6 @@ fun FeedbackDialog(
                     start = webStartIndex,
                     end = webEndIndex
                 )
-
-//                addStyle(
-//                    style = SpanStyle(
-//                        color = hyperlink,
-//                        fontSize = 17.sp,
-//                        textDecoration = TextDecoration.Underline
-//                    ),
-//                    start = fbStartIndex,
-//                    end = fbEndIndext
-//                )
-//
-//                addStringAnnotation(
-//                    tag = "URL",
-//                    annotation = "https://www.facebook.com/276536540874604/posts/276539017541023",
-//                    start = fbStartIndex,
-//                    end = fbEndIndext
-//                )
-
-
             }
 
 // UriHandler parse and opens URI inside AnnotatedString Item in Browse
@@ -154,38 +99,20 @@ fun FeedbackDialog(
             Button(onClick = onDismiss) {
                 Text(text = "Thoát")
             }
-//            Column(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .padding(bottom = 10.dp), horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                Button(
-//                    onClick = {
-//                        showFeedback.value = false
-//                    },
-//                    colors = ButtonDefaults.buttonColors(backgroundColor = exitButton),
-//                    elevation = ButtonDefaults.elevation(
-//                        defaultElevation = 0.dp,
-//                        pressedElevation = 4.dp
-//                    )
-//                ) {
-//                    Text(text = "Thoát", fontSize = 16.sp)
-//                }
-//            }
-
-        },
-
-//        dismissButton = {
-//            Button(
-//                colors = ButtonDefaults.buttonColors(backgroundColor = exitButton),
-//                elevation = ButtonDefaults.elevation(defaultElevation = 0.dp, pressedElevation = 4.dp),
-//                onClick = {
-//                    showFeedback.value = false
-//                }) {
-//                Text(text = "Thoát", fontSize = 16.sp)
-//            }
-//        }
-
-
+        }
     )
+}
+
+@Preview(name = "Light Mode", uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+annotation class DayNightPreview
+
+@DayNightPreview
+@Composable
+fun prevFeedbackDialog() {
+    AutoClickerTheme {
+        FeedbackDialog {
+
+        }
+    }
 }

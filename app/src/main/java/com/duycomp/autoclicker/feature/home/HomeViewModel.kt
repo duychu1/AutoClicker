@@ -56,30 +56,34 @@ class HomeViewModel @Inject constructor(
 
     val userDataUiState: StateFlow<UserDataUiState> =
         userDataRepository.userData.map { userData ->
-            if (!userData.isManualClockOffset)
-                ClockOffsetRepository().getClockOffset().also {
-                    if (it is Result.Success)
-                        clockOffset = it.data.toInt()
-//                        withContext(Dispatchers.Main) {
-//                            homeClockOffset = clockOffset
-//                        }
-                }
-            if (!userData.isManualZoneOffset) {
-                userDataRepository.setZoneOffset(timeZoneOffset)
-            } else {
-                timeZoneOffset = userData.zoneOffset
-            }
-
-            Log.d(TAG, "userData: from Datastore")
-            UserDataUiState.Success(
-                userData = userData
-            )
-
+            UserDataUiState.Success(userData = userData)
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = UserDataUiState.Loading,
         )
+
+    init {
+        viewModelScope.launch {
+            userDataRepository.userData.collect { userData ->
+                if (!userData.isManualClockOffset) {
+                    when (val result = ClockOffsetRepository().getClockOffset()) {
+                        is Result.Success -> clockOffset = result.data.toInt()
+                        is Result.Error -> {
+                            Log.e(TAG, "Error getting clock offset: ${result.exception}")
+                        }
+                        is Result.Loading -> TODO()
+                    }
+                }
+
+                if (!userData.isManualZoneOffset) {
+                    userDataRepository.setZoneOffset(timeZoneOffset)
+                } else {
+                    timeZoneOffset = userData.zoneOffset
+                }
+            }
+        }
+    }
 
 //    val clock: StateFlow<String> =
 //        processingTime(
