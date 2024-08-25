@@ -17,4 +17,5 @@ message UserPreferences  {
     bool isManualClockOffset = 9;
     int64 clockOffset = 10;
     int64 zoneOffset = 11;
+    bool isNotFirstTime = 12;
 }

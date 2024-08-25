@@ -17,15 +17,10 @@ class PreferencesDataSource @Inject constructor(
 ) {
 
     val userData = userPreferences.data
-        .catch { exception ->
-            // dataStore.data throws an IOException when an error is encountered when reading data
-            if (exception is IOException) {
-                Log.e(TAG, "Error reading sort order preferences.", exception)
-            } else {
-                throw exception
-            }
-        }
         .map {
+            if (!it.isNotFirstTime) {
+                handlerFirstTime()
+            }
             UserData (
                 darkThemeConfig = when (it.darkThemeConfig) {
                     null,
@@ -49,6 +44,14 @@ class PreferencesDataSource @Inject constructor(
                 clockOffset = it.clockOffset,
                 zoneOffset = it.zoneOffset,
             )
+        }
+        .catch { exception ->
+            // dataStore.data throws an IOException when an error is encountered when reading data
+            if (exception is IOException) {
+                Log.e(TAG, "Error reading sort order preferences.", exception)
+            } else {
+                throw exception
+            }
         }
 
     suspend fun setDarkThemeConfig(darkThemeConfig: DarkThemeConfig) {
@@ -123,5 +126,20 @@ class PreferencesDataSource @Inject constructor(
         }
     }
 
+    suspend fun setIsNotFirstTime() {
+        userPreferences.updateData {
+            it.toBuilder()
+                .setIsNotFirstTime(true)
+                .setIntervalClick(100L)
+                .setDurationClick(10L)
+                .setNLoop(1)
+                .setEarlyTime(300L)
+                .build()
+        }
+    }
 
+
+    private suspend fun handlerFirstTime() {
+        setIsNotFirstTime()
+    }
 }
