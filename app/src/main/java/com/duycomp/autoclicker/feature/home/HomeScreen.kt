@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -77,7 +78,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.userDataUiState.collectAsStateWithLifecycle()
     val isOverlaying by viewModel.isOverlaying.collectAsStateWithLifecycle()
-    val clock by viewModel.clock.collectAsStateWithLifecycle()
+    val clock = viewModel.clock.collectAsStateWithLifecycle()
     val isAccessibilityNotify = viewModel.isAccessibilityNotify
 
     val context = LocalContext.current
@@ -138,7 +139,7 @@ fun ColumnScope.HomeScreenContent(
     onLoopChange: (Int) -> Unit = { },
     onStartOverlayButtonClick: (Context) -> Unit = { },
     isOverlayController: Boolean = false,
-    clock: String = "13:34:56.7",
+    clock: State<String> = mutableStateOf("13:34:56.7"),
 ) {
 //    BannerAds()
 
@@ -263,7 +264,7 @@ fun ColumnScope.HomeScreenContent(
 
 @Composable
 private fun ClockSetting(
-    time: String,
+    time: State<String>,
     offset: Int = clockOffset,
     isTimeManual: Boolean = false,
     isOffsetManual: Boolean = false,
@@ -282,7 +283,7 @@ private fun ClockSetting(
     ) {
 
         if (isTimeManual) Text(text = ".")
-        Text(text = time)
+        TextTime(time)
         Spacer(modifier = Modifier.width(40.dp))
 
         if (isOffsetManual) Text(text = ".")
@@ -299,6 +300,11 @@ private fun ClockSetting(
                 }
         )
     }
+}
+
+@Composable
+private fun TextTime(time: State<String>) {
+    Text(text = time.value)
 }
 
 @Composable
