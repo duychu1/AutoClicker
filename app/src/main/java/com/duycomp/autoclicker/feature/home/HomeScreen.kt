@@ -283,11 +283,10 @@ private fun ClockSetting(
     ) {
 
         if (isTimeManual) Text(text = ".")
-        TextTime(time)
-        Spacer(modifier = Modifier.width(40.dp))
+        TextTimeAndOffset(time)
 
-        if (isOffsetManual) Text(text = ".")
-        Text(text = "Độ lệch:  $offset ms")
+
+//        if (isOffsetManual) Text(text = ".")
         Spacer(modifier = Modifier.weight(1f))
 
         Icon(
@@ -303,8 +302,10 @@ private fun ClockSetting(
 }
 
 @Composable
-private fun TextTime(time: State<String>) {
+private fun TextTimeAndOffset(time: State<String>, offset: Int = clockOffset) {
     Text(text = time.value)
+    Spacer(modifier = Modifier.width(40.dp))
+    Text(text = "Độ lệch:  $offset ms")
 }
 
 @Composable
