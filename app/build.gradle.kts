@@ -1,10 +1,13 @@
+import org.gradle.configurationcache.extensions.capitalized
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt)
     alias(libs.plugins.protobuf)
+    alias(libs.plugins.compose.compiler)
 
 }
 
@@ -13,11 +16,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.duycomp.autoclicker"
+        applicationId = "com.ruicomp.autoclicker.sale"
         minSdk = 24
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 47
+        versionName = "4.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,9 +51,6 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get().toString()
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -77,6 +77,17 @@ protobuf {
                 register("kotlin") {
                     option("lite")
                 }
+            }
+        }
+    }
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        afterEvaluate {
+            val capName = variant.name.capitalized()
+            tasks.getByName<KotlinCompile>("ksp${capName}Kotlin") {
+                setSource(tasks.getByName("generate${capName}Proto").outputs)
             }
         }
     }
@@ -123,7 +134,7 @@ dependencies {
     implementation(libs.bundles.androidxComposeLibs)
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.android.compiler)
+    ksp(libs.hilt.android.compiler)
 
     //database
     implementation(libs.room.runtime)
@@ -142,6 +153,8 @@ dependencies {
     //datastore
     implementation(libs.dataStore.core)
     implementation(libs.protobuf.kotlin.lite)
+
+    implementation(libs.splashscreen)
 
 
 

@@ -7,4 +7,6 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.secrets) apply false
     alias(libs.plugins.protobuf) apply false
+    alias(libs.plugins.compose.compiler) apply false
+
 }
